@@ -31,6 +31,42 @@ export function makeArcEdge2d(p1: gp_Pnt2d, p2: gp_Pnt2d, p3: gp_Pnt2d): TopoDS_
 }
 
 // ---------------------------------------------------------------------------
+// Cast helpers
+// ---------------------------------------------------------------------------
+
+/** Cast a TopoDS_Shape to TopoDS_Vertex. */
+export function topoDSToVertex(shape: TopoDS_Shape): TopoDS_Vertex {
+  const Module = getOCCTModule();
+  const handle = Module.TopoDS_ToVertex(shape._handle);
+  return TopoDS_Vertex._fromHandle(handle);
+}
+
+// ---------------------------------------------------------------------------
+// Mesh helpers
+// ---------------------------------------------------------------------------
+
+export interface MeshData {
+  positions: Float32Array;
+  indices: Uint32Array;
+}
+
+export interface MeshOptions {
+  deflection?: number;
+  angle?: number;
+}
+
+/** Triangulate a shape and return raw position/index buffers for rendering. */
+export function meshShape(shape: TopoDS_Shape, options: MeshOptions = {}): MeshData {
+  const Module = getOCCTModule();
+  const deflection = options.deflection ?? 0.5;
+  const angle = options.angle ?? 0.5;
+  const out = Module.MeshShape(shape._handle, deflection, angle);
+  const positions = new Float32Array(out.positions);
+  const indices = new Uint32Array(out.indices);
+  return { positions, indices };
+}
+
+// ---------------------------------------------------------------------------
 // Curve measurement helpers
 // ---------------------------------------------------------------------------
 

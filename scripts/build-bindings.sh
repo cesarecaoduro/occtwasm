@@ -121,6 +121,7 @@ em++ \
     -lTKShHealing \
     -lTKTopAlgo \
     -lTKGeomAlgo \
+    -lTKMesh \
     -lTKBRep \
     -lTKGeomBase \
     -lTKG3d \

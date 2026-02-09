@@ -1,5 +1,5 @@
 {
-  "name": "@occtwasm/core",
+  "name": "@cesarecaoduro/occtwasm-core",
   "version": "0.1.0",
   "description": "OpenCascade (OCCT) compiled to WebAssembly with TypeScript bindings",
   "type": "module",
@@ -102,7 +102,7 @@
   "license": "LGPL-2.1-only",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cesarecaoduro/occtwasm"
+    "url": "git+https://github.com/cesarecaoduro/occtwasm.git"
   },
   "engines": {
     "node": ">=18"

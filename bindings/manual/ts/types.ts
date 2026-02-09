@@ -37,6 +37,9 @@ interface ManualHelperFunctions {
   BRepGProp_LinearProperties(shape: EmbindHandles.TopoDS_Shape): GPropGPropsHandle;
   BRepGProp_SurfaceProperties(shape: EmbindHandles.TopoDS_Shape): GPropGPropsHandle;
   BRepGProp_VolumeProperties(shape: EmbindHandles.TopoDS_Shape): GPropGPropsHandle;
+
+  // --- Mesh helpers (mesh_helpers.cpp) ---
+  MeshShape(shape: EmbindHandles.TopoDS_Shape, deflection: number, angle: number): any;
 }
 
 // ---------------------------------------------------------------------------
@@ -133,6 +136,8 @@ export interface OcctModule extends GeneratedOcctModule, ManualHelperFunctions, 
 export interface InitOptions {
   /** Custom resolver for the .wasm file location. */
   locateFile?: (path: string, scriptDirectory: string) => string;
+  /** Custom URL for the occt.js glue script. Overrides the default resolution. */
+  wasmJsUrl?: string;
 }
 
 // ---------------------------------------------------------------------------

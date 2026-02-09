@@ -1,11 +1,11 @@
-// Main entry point for @occtwasm/core
+// Main entry point for @cesarecaoduro/occtwasm-core
 //
 // Re-exports the WASM module loader, types, and all bindings so that
 // consumers can use either:
-//   import { initOCCT, gp_Pnt } from '@occtwasm/core';
+//   import { initOCCT, gp_Pnt } from '@cesarecaoduro/occtwasm-core';
 // or sub-path imports:
-//   import { initOCCT } from '@occtwasm/core';
-//   import { gp_Pnt } from '@occtwasm/core/TKMath';
+//   import { initOCCT } from '@cesarecaoduro/occtwasm-core';
+//   import { gp_Pnt } from '@cesarecaoduro/occtwasm-core/TKMath';
 
 // Module loader & types
 export { initOCCT } from '../bindings/manual/ts/module-loader.js';
@@ -101,4 +101,6 @@ export {
   volumeProperties,
   BRepAlgoAPI_Section,
   BRepOffsetAPI_ThruSections,
+  topoDSToVertex,
+  meshShape,
 } from '../bindings/manual/ts/helpers.js';

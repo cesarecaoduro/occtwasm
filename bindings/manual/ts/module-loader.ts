@@ -6,7 +6,6 @@
 
 import type { OcctModule, InitOptions } from "./types";
 import { setOCCTModule } from "./module-registry";
-import { pathToFileURL } from "node:url";
 
 export type { InitOptions } from "./types";
 
@@ -38,25 +37,32 @@ let pendingInit: Promise<OcctModule> | null = null;
  *   2. Bundlers can still resolve the specifier at build time if desired.
  *   3. We avoid a static import of an untyped generated file at the top level.
  */
-async function loadFactory(): Promise<
+async function loadFactory(
+  wasmJsUrl?: string,
+): Promise<
   (moduleOverrides?: Record<string, unknown>) => Promise<OcctModule>
 > {
-  // The specifier must match the output location relative to the final package
-  // layout. Both the JS glue and the WASM binary live in `build/dist/`.
-  //
-  // When consumed as the `@occtwasm/core` npm package the bundler / runtime
-  // resolves this relative import against the package's file structure.
-  const metaUrl =
-    (typeof import.meta !== "undefined" && import.meta.url) ? import.meta.url : undefined;
-  const baseUrl = metaUrl ?? (typeof __dirname !== "undefined"
-    ? pathToFileURL(__dirname + "/").href
-    : "");
-  if (!baseUrl) {
-    throw new Error("Unable to resolve occt.js location for module loader.");
+  // Resolve the occt.js glue URL. If an explicit URL was provided via
+  // InitOptions.wasmJsUrl, use that directly. Otherwise resolve relative to
+  // this module (import.meta.url in ESM / __dirname in CJS).
+  let glueUrl: string;
+  if (wasmJsUrl) {
+    glueUrl = wasmJsUrl;
+  } else {
+    let baseUrl: string;
+    if (typeof import.meta !== "undefined" && import.meta.url) {
+      baseUrl = import.meta.url;
+    } else if (typeof __dirname !== "undefined") {
+      const { pathToFileURL } = await import(/* @vite-ignore */ "node:url");
+      baseUrl = pathToFileURL(__dirname + "/").href;
+    } else {
+      throw new Error("Unable to resolve occt.js location for module loader.");
+    }
+    glueUrl = new URL("./occt.js", baseUrl).toString();
   }
-  const glueUrl = new URL("./occt.js", baseUrl).toString();
   const glue = (await import(
     /* webpackIgnore: true */
+    /* @vite-ignore */
     glueUrl
   )) as { default: (moduleOverrides?: Record<string, unknown>) => Promise<OcctModule> };
 
@@ -114,7 +120,7 @@ export async function initOCCT(options?: InitOptions): Promise<OcctModule> {
   }
 
   pendingInit = (async (): Promise<OcctModule> => {
-    const createOCCTModule = await loadFactory();
+    const createOCCTModule = await loadFactory(options?.wasmJsUrl);
 
     // Assemble the Emscripten module-override object.
     const moduleOverrides: Record<string, unknown> = {};
