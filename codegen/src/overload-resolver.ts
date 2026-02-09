@@ -24,6 +24,9 @@ function unwrapArg(index: number, arg: Arg, varPrefix: string): string {
   if (isOcctClass(arg.type) && !isOcctEnum(arg.type)) {
     return `${varPrefix}[${index}]._handle`;
   }
+  if (isOcctEnum(arg.type)) {
+    return `Module.${arg.type}.values[${varPrefix}[${index}]]`;
+  }
   return `${varPrefix}[${index}]`;
 }
 
@@ -86,26 +89,28 @@ export function generateOverloadBody(
 ): string {
   const lines: string[] = [];
   const isStatic = overload.static ?? method.static ?? false;
-  const returnType = getReturnType(method, overload);
+  const outputArgs = overload.output_args ?? method.output_args ?? false;
+  const isOverloadedMethod = isOverloaded(method);
+
+  // For output_args, the return type is the first arg's type (the output param)
+  let returnType: string;
+  if (outputArgs && overload.args.length > 0) {
+    returnType = overload.args[0].type;
+  } else {
+    returnType = getReturnType(method, overload);
+  }
   const tsReturn = cppToTsType(returnType);
   const returnsVoid = returnType === 'void';
   const returnsOcctClass = isOcctClass(returnType) && !isOcctEnum(returnType);
-  const isOverloadedMethod = isOverloaded(method);
 
   // Determine the method name on the embind handle
   const embindMethodName = isOverloadedMethod
     ? `${methodName}${overload.suffix}`
     : methodName;
 
-  // Build argument expressions
-  let argExprs: string[];
-  if (method.output_args) {
-    // For output_args methods, embind lambda takes no args (output param is internal)
-    const inputArgs = overload.args.slice(1);
-    argExprs = inputArgs.map((arg, i) => unwrapArg(i, arg, 'args'));
-  } else {
-    argExprs = overload.args.map((arg, i) => unwrapArg(i, arg, 'args'));
-  }
+  // Build argument expressions — strip the output arg for output_args methods
+  const inputArgs = outputArgs ? overload.args.slice(1) : overload.args;
+  const argExprs = inputArgs.map((arg, i) => unwrapArg(i, arg, 'args'));
   const argsStr = argExprs.join(', ');
 
   // Build the call expression
@@ -116,12 +121,17 @@ export function generateOverloadBody(
     callExpr = `this._handle.${embindMethodName}(${argsStr})`;
   }
 
+  const returnsEnum = isOcctEnum(returnType);
+
   // Emit the call and handle the return value
   if (returnsVoid) {
     lines.push(`${indent}${callExpr};`);
   } else if (returnsOcctClass) {
     lines.push(`${indent}const _result = ${callExpr};`);
     lines.push(`${indent}return ${tsReturn}._fromHandle(_result);`);
+  } else if (returnsEnum) {
+    // Embind enums are objects with a .value property
+    lines.push(`${indent}return ${callExpr}.value;`);
   } else {
     lines.push(`${indent}return ${callExpr};`);
   }
@@ -152,7 +162,10 @@ export function generateOverloadDispatch(
 
   for (let i = 0; i < overloads.length; i++) {
     const overload = overloads[i];
-    const check = generateInstanceofCheck(overload.args, 'args');
+    const outputArgs = overload.output_args ?? method.output_args ?? false;
+    // For output_args, strip the first arg (output param) from the TS-level check
+    const checkArgs = outputArgs ? overload.args.slice(1) : overload.args;
+    const check = generateInstanceofCheck(checkArgs, 'args');
     const keyword = i === 0 ? 'if' : '} else if';
     lines.push(`${indent}${keyword} (${check}) {`);
     lines.push(generateOverloadBody(className, methodName, overload, method, indent + '  '));

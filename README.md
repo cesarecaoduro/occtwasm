@@ -1,32 +1,18 @@
 # @occtwasm/core
 
-OpenCascade (OCCT) compiled to WebAssembly with TypeScript bindings.
-
-## Status
-
-Work in progress. See [plans/PLAN.md](plans/PLAN.md) for the full implementation plan.
-
-| Phase | Description | Status |
-|-------|-------------|--------|
-| **A** | Project scaffolding (package.json, tsconfig, Makefile, Dockerfile) | Done |
-| **B** | Download + build scripts (download-occt.sh, build-wasm.sh, CMakeLists.txt) | Done |
-| **C** | Codegen config + tool (YAML configs, TypeScript codegen) | Done |
-| **D** | Manual binding helpers (cast_helpers.cpp, module-loader.ts, types.ts) | Done |
-| **E** | Run codegen + compile WASM | Done |
-| **F** | NPM entry point + TS build | Pending |
-| **G** | Tests (vitest) | Pending |
+OpenCascade (OCCT 8.0.0) compiled to WebAssembly with TypeScript bindings.
 
 ## Architecture
 
 ```
 C++ OCCT Libraries (.a)
         |
-  [embind C++ layer]        ← disambiguated names (e.g. Mirror_Pnt, Mirror_Ax1)
-  (generated/ + manual/)      generated from YAML configs + hand-written helpers
+  [embind C++ layer]        <- disambiguated names (e.g. Mirror_Pnt, Mirror_Ax1)
+  (generated/ + manual/)      generated from YAML configs + parsed headers
         |
     WASM Module (.wasm + .js glue)
         |
-  [TypeScript wrapper layer] ← proper overloads with instanceof dispatch
+  [TypeScript wrapper layer] <- proper overloads with instanceof dispatch
   (generated/ + manual/)      generated TS wrappers + module loader / types
         |
     NPM Package (@occtwasm/core)
@@ -34,20 +20,38 @@ C++ OCCT Libraries (.a)
 
 **Why two layers?** Emscripten's embind only supports overloading by argument *count*, while OCCT heavily overloads by *type* (e.g. `gp_Trsf::SetMirror(gp_Pnt)` vs `SetMirror(gp_Ax1)` vs `SetMirror(gp_Ax2)`). The C++ layer disambiguates with suffixed names; the TypeScript layer restores the original API with runtime `instanceof` dispatch.
 
+**Why manual helpers?** Three codegen limitations require hand-written C++ embind wrappers:
+1. **Handle types** -- `GC_MakeArcOfCircle` returns `Handle(Geom_TrimmedCurve)` which embind can't bind directly
+2. **Virtual methods** -- `Shape()`, `Build()`, `IsDone()` are virtual and skipped by the parser
+3. **Abstract base classes** -- `GCPnts_AbscissaPoint` takes `Adaptor3d_Curve&` (abstract); manual wrappers accept the concrete `TopoDS_Edge` instead
+
 ## Quick Start
 
 ```typescript
-import { initOCCT, gp_Pnt, gp_Trsf, gp_Ax1, gp_Dir } from '@occtwasm/core';
+import { initOCCT } from '@occtwasm/core';
+import { gp_Pnt } from '@occtwasm/core/TKMath';
+import { BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire } from '@occtwasm/core/TKTopAlgo';
+import { edgeLength, makeArcEdge3d, wireLength } from '@occtwasm/core/helpers';
 
 await initOCCT();
 
-const origin = new gp_Pnt(0, 0, 0);
-const p = new gp_Pnt(1, 2, 3);
-const dist = origin.Distance(p);
+// Create an edge between 2 points
+const p1 = new gp_Pnt(0, 0, 0);
+const p2 = new gp_Pnt(10, 0, 0);
+const maker = new BRepBuilderAPI_MakeEdge(p1, p2);
+const edge = maker.Edge();
+console.log(edgeLength(edge)); // 10.0
 
-const trsf = new gp_Trsf();
-trsf.SetMirror(origin);                              // Mirror(gp_Pnt)
-trsf.SetMirror(new gp_Ax1(origin, new gp_Dir(0,0,1))); // Mirror(gp_Ax1)
+// Create an arc through 3 points
+const a1 = new gp_Pnt(10, 0, 0);
+const a2 = new gp_Pnt(0, 10, 0);
+const a3 = new gp_Pnt(-10, 0, 0);
+const arc = makeArcEdge3d(a1, a2, a3);
+console.log(edgeLength(arc)); // ~31.42 (pi * 10)
+
+// Build a wire from edges
+const wire = new BRepBuilderAPI_MakeWire(edge, arc);
+console.log(wireLength(wire.Wire())); // ~41.42
 ```
 
 ## Building from Source
@@ -56,8 +60,7 @@ trsf.SetMirror(new gp_Ax1(origin, new gp_Dir(0,0,1))); // Mirror(gp_Ax1)
 
 - [Emscripten](https://emscripten.org/) (locally installed, e.g. `brew install emscripten`)
 - Node.js >= 18
-- npm
-- CMake (for building OCCT)
+- CMake
 
 ### Build Steps
 
@@ -71,50 +74,111 @@ npm run build        # Build TypeScript package
 npm test             # Run tests
 ```
 
+## How Codegen Works
+
+The codegen pipeline has three stages:
+
+1. **Minimal YAML configs** (`codegen/config/*.yaml`) declare which OCCT classes/methods/enums to bind. Humans only specify overload disambiguation (match arrays + suffixes), factory constructors, output args, and skip lists.
+
+2. **Header parsing** (`parse-headers.ts`) reads the actual OCCT `.hxx` headers to extract constructors, methods, args, return types, and inheritance.
+
+3. **Merge** (`merge-config.ts`) combines the YAML config with parsed header data to produce a fully-resolved `ModuleConfig`, then emitters generate C++ embind code and TypeScript wrappers.
+
+To scaffold YAML for a new class:
+```bash
+npx tsx codegen/src/generate-yaml.ts --classes gp_Pnt,gp_Vec --module TKMath
+```
+
 ## Project Structure
 
 ```
 extern/occt/                     # OCCT source (git submodule, V8_0_0_rc3)
-scripts/                        # Build scripts (local Emscripten)
-codegen/                        # YAML configs + TypeScript code generator
-  config/                       # Per-toolkit binding declarations (TKMath.yaml, TKBRep.yaml, ...)
-  src/                          # Codegen tool source
+scripts/                         # Build scripts (local Emscripten)
+codegen/
+  config/                        # Per-toolkit YAML configs
+    modules.yaml                 #   Module registry (which toolkits to build)
+    TKMath.yaml                  #   gp_* geometry classes (3D + 2D)
+    TKBRep.yaml                  #   TopoDS/BRep topology classes
+    TKTopAlgo.yaml               #   BRepBuilderAPI_Make* builder classes
+    TKGeomBase.yaml              #   gce_Make* geometry construction classes
+  src/                           # Codegen tool source
+    codegen.ts                   #   Entry point
+    parse-headers.ts             #   OCCT .hxx header parser
+    parse-config.ts              #   YAML config loader + resolved types
+    merge-config.ts              #   Merge YAML config with parsed headers
+    emit-embind.ts               #   Generate C++ embind bindings
+    emit-typescript.ts           #   Generate TypeScript wrappers
+    type-mapper.ts               #   C++ <-> TS/embind type mapping
+    overload-resolver.ts         #   Runtime overload dispatch codegen
+    generate-yaml.ts             #   CLI tool to scaffold new YAML configs
 bindings/
-  generated/                    # Auto-generated by `npm run codegen` — DO NOT EDIT
-    cpp/                        #   embind C++ (one file per OCCT toolkit)
-    ts/                         #   TypeScript wrappers with runtime overload dispatch
-  manual/                       # Hand-written code — safe to edit, never overwritten by codegen
-    cpp/                        #   C++ helpers compiled alongside generated bindings
-      occt_wasm_init.cpp        #     Module-level init (version string, etc.)
-      cast_helpers.cpp          #     TopoDS downcasting (TopoDS_ToVertex, TopoDS_ToEdge, ...)
-    ts/                         #   TypeScript utilities imported by the package entry point
-      types.ts                  #     OcctModule interface, InitOptions, CastHelper type
-      module-loader.ts          #     Async initOCCT() — singleton WASM loader
-src/                            # NPM package entry point
-tests/                          # Vitest test suite
-swig/                           # Reference SWIG interface files
-build/                          # Build artefacts (gitignored)
-  occt-install/                 #   Pre-built OCCT static libraries
-  dist/                         #   occt.js + occt.wasm output
+  generated/                     # Auto-generated by `make codegen` -- DO NOT EDIT
+    cpp/                         #   embind C++ (one file per OCCT toolkit)
+      TKMath.cpp
+      TKBRep.cpp
+      TKTopAlgo.cpp
+      TKGeomBase.cpp
+    ts/                          #   TypeScript wrappers with runtime overload dispatch
+      TKMath.ts
+      TKBRep.ts
+      TKTopAlgo.ts
+      TKGeomBase.ts
+  manual/                        # Hand-written code -- never overwritten by codegen
+    cpp/
+      occt_wasm_init.cpp         #   Module-level init
+      cast_helpers.cpp           #   TopoDS downcasting helpers
+      arc_helpers.cpp            #   Arc edge from 3 points (wraps Handle types)
+      curve_measure_helpers.cpp  #   Edge/wire length, point at length
+      gprop_helpers.cpp          #   GProp_GProps, BRepGProp surface/volume properties
+      boolean_helpers.cpp        #   BRepAlgoAPI_Section (wire intersection)
+      loft_helpers.cpp           #   BRepOffsetAPI_ThruSections (lofting)
+    ts/
+      types.ts                   #   OcctModule interface, InitOptions
+      module-loader.ts           #   Async initOCCT() singleton WASM loader
+      helpers.ts                 #   TS wrappers for manual C++ helpers
+tests/                           # Vitest test suite
+  edge.test.ts                   #   Edge creation (3D + 2D), length, point at length
+  arc.test.ts                    #   Arc from 3 points (3D + 2D), length, point at length
+  polyline.test.ts               #   Polyline from N points, length, point at length
+  wire.test.ts                   #   Wire from line+arc+polyline, length, point at length
+  intersection.test.ts           #   Wire-wire intersection
+  loft.test.ts                   #   Loft (surface area, volume)
+build/                           # Build artefacts (gitignored)
+  occt-install/                  #   Pre-built OCCT static libraries + headers
+  dist/                          #   occt.js + occt.wasm output
 ```
 
-### Why `generated/` vs `manual/`?
+## Bound Classes
 
-Both directories are compiled together into the final WASM module, but they have different ownership:
+### Generated (codegen)
 
-- **`bindings/generated/`** is overwritten every time `npm run codegen` runs. Any hand-edits here will be lost.
-- **`bindings/manual/`** is never touched by codegen. It holds code that cannot be derived from the YAML configs — such as the `TopoDS` downcasting helpers (static C++ functions) and the TypeScript module loader (async WASM init with environment detection).
+~45 classes from 4 OCCT toolkits:
 
-The build scripts (`build-bindings.sh` with em++, `CMakeLists.txt` for CMake) collect `.cpp` files from both directories and link them into a single `occt.wasm`.
+- **TKMath (gp)**: XYZ, Pnt, Vec, Dir, Ax1, Ax2, Ax3, Trsf, Mat, Quaternion, Lin, Pln, Circ, Elips, XY, Pnt2d, Vec2d, Dir2d, Ax2d, Ax22d, Lin2d, Circ2d
+- **TKBRep (TopoDS/BRep)**: Shape, Vertex, Edge, Wire, Face, Shell, Solid, Compound, Builder, Iterator, TopExp_Explorer, BRep_Builder, BRep_Tool
+- **TKTopAlgo**: BRepBuilderAPI_MakeEdge, MakeEdge2d, MakeWire, MakePolygon
+- **TKGeomBase**: gce_MakeCirc, gce_MakeCirc2d, gce_MakeLin, gce_MakeLin2d
+- **Enums**: gp_TrsfForm, gp_EulerSequence, TopAbs_ShapeEnum, TopAbs_Orientation, TopAbs_State, BRepBuilderAPI_EdgeError, BRepBuilderAPI_WireError, gce_ErrorType
 
-## Initial Scope
+### Manual C++ Helpers
 
-~25 classes from gp (geometric primitives) and TopoDS (topological data structure):
+For operations blocked by Handle types, virtual methods, or abstract base classes:
 
-- **gp**: Pnt, Vec, Dir, Ax1, Ax2, Ax3, Trsf, Mat, Quaternion, XYZ, Lin, Pln, Circ, Elips
-- **TopoDS**: Shape, Vertex, Edge, Wire, Face, Shell, Solid, Compound, Builder, Iterator
-- **TopExp**: Explorer
-- **BRep**: Builder, Tool
+- **Arc creation**: `MakeArcEdge3d(P1, P2, P3)`, `MakeArcEdge2d(P1, P2, P3)`
+- **Curve measurement**: `EdgeLength`, `WireLength`, `PointAtLengthOnEdge`, `PointAtLengthOnWire`
+- **Global properties**: `BRepGProp_LinearProperties`, `BRepGProp_SurfaceProperties`, `BRepGProp_VolumeProperties` + `GProp_GProps`
+- **Boolean operations**: `BRepAlgoAPI_Section` (shape intersection)
+- **Lofting**: `BRepOffsetAPI_ThruSections` (surface/solid through wire sections)
+- **Builder helpers**: `Shape()`, `IsDone()` for all `BRepBuilderAPI_Make*` classes
+- **Cast helpers**: `TopoDS_ToVertex`, `TopoDS_ToEdge`, `TopoDS_ToWire`, etc.
+
+### OCCT Libraries Linked
+
+12 static libraries in dependency order:
+```
+TKOffset > TKBO > TKBool > TKShHealing > TKTopAlgo > TKGeomAlgo >
+TKBRep > TKGeomBase > TKG3d > TKG2d > TKMath > TKernel
+```
 
 ## License
 

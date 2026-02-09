@@ -3,45 +3,87 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // ---------------------------------------------------------------------------
-// Interfaces for the YAML config schema
+// Minimal YAML interfaces (what humans write in .minimal.yaml configs)
+// ---------------------------------------------------------------------------
+
+export interface MinimalOverloadDef {
+  match: string[];
+  suffix?: string;
+  output_args?: boolean;
+  mut_args?: string[];
+  skip?: boolean;
+}
+
+export interface MinimalMethodDef {
+  overloads?: MinimalOverloadDef[];
+  skip?: boolean;
+  output_args?: boolean;
+  mut_args?: string[];
+}
+
+export interface MinimalConstructorDef {
+  match?: string[];
+  factory?: string;
+  skip?: boolean;
+}
+
+export interface MinimalClassDef {
+  include?: string;
+  constructors?: MinimalConstructorDef[];
+  methods?: Record<string, MinimalMethodDef>;
+  skip?: string[];
+  suppress_inherits?: boolean;
+}
+
+export interface MinimalEnumDef {
+  include: string;
+}
+
+export interface MinimalModuleConfig {
+  module: string;
+  classes: Record<string, MinimalClassDef>;
+  enums?: Record<string, MinimalEnumDef>;
+}
+
+// ---------------------------------------------------------------------------
+// Resolved config interfaces (output of merge, input to emitters)
 // ---------------------------------------------------------------------------
 
 export interface Arg {
   name: string;
-  type: string; // C++ type (e.g., "Standard_Real", "gp_Pnt")
-  mut?: boolean; // true if the C++ param is a non-const reference (mutable)
+  type: string;
+  mut?: boolean;
 }
 
 export interface MethodOverload {
-  suffix: string; // e.g., "_Pnt", "_Ax1"
+  suffix: string;
   args: Arg[];
-  returns?: string; // C++ return type, defaults to parent method's returns or "void"
+  returns?: string;
   const?: boolean;
   static?: boolean;
-  output_args?: boolean; // true if this overload uses output ref params (wrapper returns value instead)
+  output_args?: boolean;
 }
 
 export interface MethodDef {
-  // For overloaded methods:
   overloads?: MethodOverload[];
-  // For non-overloaded methods (shorthand):
   args?: Arg[];
-  returns?: string; // C++ return type, defaults to "void"
+  returns?: string;
   const?: boolean;
   static?: boolean;
-  output_args?: boolean; // true if C++ uses output ref params (wrapper returns value instead)
+  output_args?: boolean;
 }
 
 export interface ConstructorDef {
   args: Arg[];
-  factory?: string; // If set, bind as class_function factory (for same-argcount constructor disambiguation)
+  factory?: string;
 }
 
 export interface ClassDef {
-  include: string; // Header file (e.g., "gp_Pnt.hxx")
+  include: string;
   constructors: ConstructorDef[];
   methods: Record<string, MethodDef>;
   skip?: string[];
+  inherits?: string;
 }
 
 export interface EnumDef {
@@ -63,7 +105,7 @@ export interface ModulesConfig {
 }
 
 // ---------------------------------------------------------------------------
-// Config loading functions
+// Config loading
 // ---------------------------------------------------------------------------
 
 export function loadModulesConfig(configDir: string): ModulesConfig {
@@ -71,31 +113,26 @@ export function loadModulesConfig(configDir: string): ModulesConfig {
   return parse(raw) as ModulesConfig;
 }
 
-export function loadModuleConfig(configDir: string, filename: string): ModuleConfig {
+export function loadMinimalConfig(configDir: string, filename: string): MinimalModuleConfig {
   const raw = readFileSync(join(configDir, filename), 'utf-8');
-  return parse(raw) as ModuleConfig;
+  return parse(raw) as MinimalModuleConfig;
 }
 
 // ---------------------------------------------------------------------------
-// Helper functions
+// Helpers (used by emitters)
 // ---------------------------------------------------------------------------
 
-/** Normalize a MethodDef: if it has no overloads array, return it as-is (simple method).
- *  This helper makes it easy for consumers to check if a method is overloaded. */
 export function isOverloaded(method: MethodDef): boolean {
   return Array.isArray(method.overloads) && method.overloads.length > 1;
 }
 
-/** Get the effective return type for an overload or simple method */
 export function getReturnType(method: MethodDef, overload?: MethodOverload): string {
   if (overload?.returns) return overload.returns;
   return method.returns ?? 'void';
 }
 
-/** Get all overloads for a method. For non-overloaded methods, returns a single-element array. */
 export function getOverloads(method: MethodDef): MethodOverload[] {
   if (method.overloads) return method.overloads;
-  // Convert shorthand to a single "overload" with empty suffix
   return [{
     suffix: '',
     args: method.args ?? [],

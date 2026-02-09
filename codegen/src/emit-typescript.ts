@@ -8,7 +8,7 @@ import type {
   Arg,
 } from './parse-config.js';
 import { isOverloaded, getOverloads, getReturnType } from './parse-config.js';
-import { cppToTsType, isOcctClass, isOcctEnum, isPrimitive, tsTypeForArg } from './type-mapper.js';
+import { cppToTsType, isOcctClass, isOcctEnum, isRegisteredClass, isPrimitive, tsTypeForArg } from './type-mapper.js';
 import {
   generateInstanceofCheck,
   generateOverloadDispatch,
@@ -90,12 +90,15 @@ function emitConstructorOverloadSignatures(
 function emitConstructorImpl(
   className: string,
   constructors: ConstructorDef[],
+  hasSuperClass: boolean = false,
 ): string[] {
   const lines: string[] = [];
+  const superCall = hasSuperClass ? `${INDENT}${INDENT}super();\n` : '';
 
   if (constructors.length === 0) {
     // No constructors defined -- provide a default
     lines.push(`${INDENT}constructor() {`);
+    if (hasSuperClass) lines.push(`${INDENT}${INDENT}super();`);
     lines.push(`${INDENT}${INDENT}this._handle = new Module.${className}();`);
     lines.push(`${INDENT}}`);
     return lines;
@@ -105,6 +108,7 @@ function emitConstructorImpl(
     const ctor = constructors[0];
     const params = formatTsParams(ctor.args);
     lines.push(`${INDENT}constructor(${params}) {`);
+    if (hasSuperClass) lines.push(`${INDENT}${INDENT}super();`);
     lines.push(...emitConstructorBody(className, ctor, `${INDENT}${INDENT}`));
     lines.push(`${INDENT}}`);
     return lines;
@@ -112,6 +116,7 @@ function emitConstructorImpl(
 
   // Multiple constructors: variadic implementation with runtime dispatch
   lines.push(`${INDENT}constructor(...args: any[]) {`);
+  if (hasSuperClass) lines.push(`${INDENT}${INDENT}super();`);
 
   for (let i = 0; i < constructors.length; i++) {
     const ctor = constructors[i];
@@ -139,10 +144,13 @@ function emitConstructorBody(
 ): string[] {
   const lines: string[] = [];
 
-  // Build the argument list, unwrapping OCCT class handles
+  // Build the argument list, unwrapping OCCT class handles and enum values
   const argExprs = ctor.args.map((arg, i) => {
-    if (isOcctClass(arg.type)) {
+    if (isOcctClass(arg.type) && !isOcctEnum(arg.type)) {
       return `args[${i}]._handle`;
+    }
+    if (isOcctEnum(arg.type)) {
+      return `Module.${arg.type}.values[args[${i}]]`;
     }
     return `args[${i}]`;
   });
@@ -171,22 +179,27 @@ function emitSimpleMethodBody(
 ): string[] {
   const lines: string[] = [];
   const isStatic = overload.static ?? method.static ?? false;
-  const returnType = getReturnType(method, overload);
+  const outputArgs = overload.output_args ?? method.output_args ?? false;
+
+  // For output_args, the return type is the first arg's type (the output param)
+  let returnType: string;
+  if (outputArgs && overload.args.length > 0) {
+    returnType = overload.args[0].type;
+  } else {
+    returnType = getReturnType(method, overload);
+  }
   const tsReturn = cppToTsType(returnType);
   const returnsVoid = returnType === 'void';
   const returnsOcctClass = isOcctClass(returnType) && !isOcctEnum(returnType);
 
-  // Build arg expressions using named parameters (not args[i])
-  let argExprs: string[];
-  if (method.output_args) {
-    argExprs = overload.args.slice(1).map(arg =>
-      (isOcctClass(arg.type) && !isOcctEnum(arg.type)) ? `${arg.name}._handle` : arg.name
-    );
-  } else {
-    argExprs = overload.args.map(arg =>
-      (isOcctClass(arg.type) && !isOcctEnum(arg.type)) ? `${arg.name}._handle` : arg.name
-    );
-  }
+  const returnsEnum = isOcctEnum(returnType);
+
+  // Build arg expressions — strip the output arg for output_args methods
+  const inputArgs = outputArgs ? overload.args.slice(1) : overload.args;
+  const argExprs = inputArgs.map(arg =>
+    (isOcctClass(arg.type) && !isOcctEnum(arg.type)) ? `${arg.name}._handle` :
+    isOcctEnum(arg.type) ? `Module.${arg.type}.values[${arg.name}]` : arg.name
+  );
   const argsStr = argExprs.join(', ');
 
   let callExpr: string;
@@ -201,6 +214,9 @@ function emitSimpleMethodBody(
   } else if (returnsOcctClass) {
     lines.push(`${indent}const _result = ${callExpr};`);
     lines.push(`${indent}return ${tsReturn}._fromHandle(_result);`);
+  } else if (returnsEnum) {
+    // Embind enums are objects with a .value property
+    lines.push(`${indent}return ${callExpr}.value;`);
   } else {
     lines.push(`${indent}return ${callExpr};`);
   }
@@ -224,17 +240,20 @@ function emitMethodOverloadSignatures(
   const lines: string[] = [];
   const overloads = getOverloads(method);
   const isStatic = method.static ?? false;
-  const prefix = isStatic ? 'static ' : '';
 
   for (const overload of overloads) {
     const isOverloadStatic = overload.static ?? isStatic;
     const staticPrefix = isOverloadStatic ? 'static ' : '';
-    const retType = formatTsReturn(method, overload);
+    const outputArgs = overload.output_args ?? method.output_args ?? false;
 
-    if (method.output_args) {
-      // output_args methods take no visible params in the TS signature
-      lines.push(`${INDENT}${staticPrefix}${methodName}(): ${retType};`);
+    if (outputArgs) {
+      // output_args: strip the first arg (output param) and use its type as return type
+      const effectiveArgs = overload.args.slice(1);
+      const retType = overload.args.length > 0 ? cppToTsType(overload.args[0].type) : 'void';
+      const params = formatTsParams(effectiveArgs);
+      lines.push(`${INDENT}${staticPrefix}${methodName}(${params}): ${retType};`);
     } else {
+      const retType = formatTsReturn(method, overload);
       const params = formatTsParams(overload.args);
       lines.push(`${INDENT}${staticPrefix}${methodName}(${params}): ${retType};`);
     }
@@ -271,16 +290,20 @@ function emitMethod(
   } else {
     // Single method: direct implementation
     const overload = overloads[0];
-    const retType = formatTsReturn(method, overload);
     const isMethodStatic = overload.static ?? isStatic;
     const prefix = isMethodStatic ? 'static ' : '';
+    const outputArgs = overload.output_args ?? method.output_args ?? false;
 
-    if (method.output_args) {
-      // output_args: no params in TS, embind handles it
-      lines.push(`${INDENT}${prefix}${methodName}(): ${retType} {`);
+    if (outputArgs) {
+      // output_args: strip the output param, use its type as return type
+      const effectiveArgs = overload.args.slice(1);
+      const retType = overload.args.length > 0 ? cppToTsType(overload.args[0].type) : 'void';
+      const params = formatTsParams(effectiveArgs);
+      lines.push(`${INDENT}${prefix}${methodName}(${params}): ${retType} {`);
       lines.push(...emitSimpleMethodBody(className, methodName, method, overload, `${INDENT}${INDENT}`));
       lines.push(`${INDENT}}`);
     } else {
+      const retType = formatTsReturn(method, overload);
       const params = formatTsParams(overload.args);
       lines.push(`${INDENT}${prefix}${methodName}(${params}): ${retType} {`);
       lines.push(...emitSimpleMethodBody(className, methodName, method, overload, `${INDENT}${INDENT}`));
@@ -297,13 +320,17 @@ function emitMethod(
 
 function emitClass(className: string, classDef: ClassDef): string {
   const lines: string[] = [];
+  const baseClass = classDef.inherits;
+  const extendsClause = baseClass ? ` extends ${baseClass}` : '';
 
-  lines.push(`export class ${className} {`);
+  lines.push(`export class ${className}${extendsClause} {`);
 
-  // _handle property
-  lines.push(`${INDENT}/** @internal */`);
-  lines.push(`${INDENT}_handle: any;`);
-  lines.push('');
+  if (!baseClass) {
+    // Only declare _handle on root classes — derived classes inherit it
+    lines.push(`${INDENT}/** @internal */`);
+    lines.push(`${INDENT}_handle: any;`);
+    lines.push('');
+  }
 
   // _fromHandle static factory
   lines.push(`${INDENT}/** @internal - construct from raw embind handle */`);
@@ -319,7 +346,7 @@ function emitClass(className: string, classDef: ClassDef): string {
   if (ctorSignatures.length > 0) {
     lines.push(...ctorSignatures);
   }
-  lines.push(...emitConstructorImpl(className, classDef.constructors));
+  lines.push(...emitConstructorImpl(className, classDef.constructors, !!baseClass));
   lines.push('');
 
   // Methods (sorted for deterministic output)
@@ -330,10 +357,12 @@ function emitClass(className: string, classDef: ClassDef): string {
     lines.push('');
   }
 
-  // delete() method
-  lines.push(`${INDENT}delete(): void {`);
-  lines.push(`${INDENT}${INDENT}this._handle.delete();`);
-  lines.push(`${INDENT}}`);
+  if (!baseClass) {
+    // Only emit delete() on root classes — derived classes inherit it
+    lines.push(`${INDENT}delete(): void {`);
+    lines.push(`${INDENT}${INDENT}this._handle.delete();`);
+    lines.push(`${INDENT}}`);
+  }
 
   lines.push('}');
 
@@ -341,18 +370,256 @@ function emitClass(className: string, classDef: ClassDef): string {
 }
 
 // ---------------------------------------------------------------------------
+// Topological sort: parents before children
+// ---------------------------------------------------------------------------
+
+function topoSortClasses(classes: Record<string, ClassDef>): string[] {
+  const sorted: string[] = [];
+  const visited = new Set<string>();
+
+  function visit(name: string) {
+    if (visited.has(name)) return;
+    visited.add(name);
+    const parent = classes[name]?.inherits;
+    if (parent && parent in classes) visit(parent);
+    sorted.push(name);
+  }
+
+  // Visit in alphabetical order for deterministic output within each level
+  for (const name of Object.keys(classes).sort()) {
+    visit(name);
+  }
+
+  return sorted;
+}
+
+// ---------------------------------------------------------------------------
+// Module interface type emission
+// ---------------------------------------------------------------------------
+
+/**
+ * Map a C++ type to the embind handle type for module interface declarations.
+ * Only references EmbindHandles for types that are actually registered (strict).
+ * Unregistered OCCT-like types (e.g. gp_Trsf2d) fall back to `any`.
+ */
+function embindArgType(cppType: string): string {
+  if (isRegisteredClass(cppType)) return `EmbindHandles.${cppType}`;
+  if (isOcctEnum(cppType)) return 'number';
+  if (isPrimitive(cppType)) return cppToTsType(cppType);
+  // Any unregistered type (incl. unbound OCCT types like gp_Trsf2d) → any
+  return 'any';
+}
+
+function embindReturnType(cppType: string): string {
+  if (cppType === 'void') return 'void';
+  if (isRegisteredClass(cppType)) return `EmbindHandles.${cppType}`;
+  if (isOcctEnum(cppType)) return 'number';
+  if (isPrimitive(cppType)) return cppToTsType(cppType);
+  return 'any';
+}
+
+/**
+ * Emit an embind handle interface for a class — the raw object returned by
+ * `new Module.ClassName(...)` with all instance methods typed.
+ */
+function emitEmbindHandleInterface(
+  className: string,
+  classDef: ClassDef,
+): string {
+  const lines: string[] = [];
+  lines.push(`  export interface ${className} {`);
+
+  // Instance methods
+  const methodNames = Object.keys(classDef.methods).sort();
+  for (const methodName of methodNames) {
+    if (classDef.skip?.includes(methodName)) continue;
+    const method = classDef.methods[methodName];
+    const isStatic = method.static ?? false;
+    if (isStatic) continue;
+
+    const overloads = getOverloads(method);
+    if (isOverloaded(method)) {
+      for (const ovl of overloads) {
+        const outputArgs = ovl.output_args ?? method.output_args ?? false;
+        const inputArgs = outputArgs ? ovl.args.slice(1) : ovl.args;
+        const retType = outputArgs && ovl.args.length > 0
+          ? embindReturnType(ovl.args[0].type)
+          : embindReturnType(getReturnType(method, ovl));
+        const params = inputArgs.map(a => `${a.name}: ${embindArgType(a.type)}`).join(', ');
+        lines.push(`    ${methodName}(${params}): ${retType};`);
+      }
+    } else {
+      const ovl = overloads[0];
+      const outputArgs = ovl.output_args ?? method.output_args ?? false;
+      const inputArgs = outputArgs ? ovl.args.slice(1) : ovl.args;
+      const retType = outputArgs && ovl.args.length > 0
+        ? embindReturnType(ovl.args[0].type)
+        : embindReturnType(getReturnType(method, ovl));
+      const params = inputArgs.map(a => `${a.name}: ${embindArgType(a.type)}`).join(', ');
+      lines.push(`    ${methodName}(${params}): ${retType};`);
+    }
+  }
+
+  lines.push('    delete(): void;');
+  lines.push('  }');
+
+  return lines.join('\n');
+}
+
+/**
+ * Emit the constructor interface for a class — the shape of
+ * `Module.ClassName` (constructors + factory statics).
+ */
+function emitEmbindConstructorInterface(
+  className: string,
+  classDef: ClassDef,
+): string {
+  const lines: string[] = [];
+  lines.push(`  export interface ${className}Constructor {`);
+
+  const regularCtors = classDef.constructors.filter(c => !c.factory);
+  const factoryCtors = classDef.constructors.filter(c => c.factory);
+
+  for (const ctor of regularCtors) {
+    const params = ctor.args.map(a => `${a.name}: ${embindArgType(a.type)}`).join(', ');
+    lines.push(`    new(${params}): EmbindHandles.${className};`);
+  }
+  if (regularCtors.length === 0 && factoryCtors.length === 0) {
+    lines.push(`    new(): EmbindHandles.${className};`);
+  }
+
+  for (const ctor of factoryCtors) {
+    const params = ctor.args.map(a => `${a.name}: ${embindArgType(a.type)}`).join(', ');
+    lines.push(`    ${ctor.factory}(${params}): EmbindHandles.${className};`);
+  }
+
+  // Static methods
+  const methodNames = Object.keys(classDef.methods).sort();
+  for (const methodName of methodNames) {
+    if (classDef.skip?.includes(methodName)) continue;
+    const method = classDef.methods[methodName];
+    if (!(method.static ?? false)) continue;
+    const overloads = getOverloads(method);
+    for (const ovl of overloads) {
+      const retType = embindReturnType(getReturnType(method, ovl));
+      const params = ovl.args.map(a => `${a.name}: ${embindArgType(a.type)}`).join(', ');
+      lines.push(`    ${methodName}(${params}): ${retType};`);
+    }
+  }
+
+  lines.push('  }');
+  return lines.join('\n');
+}
+
+/**
+ * Emit an enum interface entry for the module.
+ */
+function emitEmbindEnumInterface(enumName: string, enumDef: EnumDef): string {
+  const lines: string[] = [];
+  lines.push(`  export interface ${enumName}Enum {`);
+  for (const value of enumDef.values) {
+    lines.push(`    readonly ${value}: { readonly value: number };`);
+  }
+  lines.push('  }');
+  return lines.join('\n');
+}
+
+/**
+ * Generate module interface type declarations for a single module config.
+ * Returns { handles, constructors, enums, properties } as string arrays.
+ */
+export function emitModuleTypes(config: ModuleConfig): {
+  handles: string[];
+  constructors: string[];
+  enums: string[];
+  properties: string[];
+} {
+  const handles: string[] = [];
+  const constructors: string[] = [];
+  const enums: string[] = [];
+  const properties: string[] = [];
+
+  const classNames = topoSortClasses(config.classes);
+  for (const className of classNames) {
+    const classDef = config.classes[className];
+    handles.push(emitEmbindHandleInterface(className, classDef));
+    constructors.push(emitEmbindConstructorInterface(className, classDef));
+    properties.push(`  ${className}: EmbindConstructors.${className}Constructor;`);
+  }
+
+  const enumNames = Object.keys(config.enums).sort();
+  for (const enumName of enumNames) {
+    enums.push(emitEmbindEnumInterface(enumName, config.enums[enumName]));
+    properties.push(`  ${enumName}: EmbindEnums.${enumName}Enum;`);
+  }
+
+  return { handles, constructors, enums, properties };
+}
+
+// ---------------------------------------------------------------------------
 // Main export
 // ---------------------------------------------------------------------------
+
+/**
+ * Collect all class types referenced in method args, return types, and
+ * constructors that are not defined in this module.
+ */
+function collectExternalClasses(
+  config: ModuleConfig,
+  classToModule: Map<string, string>,
+): Map<string, Set<string>> {
+  const localClasses = new Set(Object.keys(config.classes));
+  // Map: sourceModule → Set<className>
+  const imports = new Map<string, Set<string>>();
+
+  function addIfExternal(typeName: string) {
+    if (localClasses.has(typeName)) return;
+    const sourceModule = classToModule.get(typeName);
+    if (!sourceModule) return;
+    if (!imports.has(sourceModule)) imports.set(sourceModule, new Set());
+    imports.get(sourceModule)!.add(typeName);
+  }
+
+  for (const classDef of Object.values(config.classes)) {
+    for (const ctor of classDef.constructors) {
+      for (const arg of ctor.args) {
+        if (isOcctClass(arg.type)) addIfExternal(arg.type);
+      }
+    }
+    for (const method of Object.values(classDef.methods)) {
+      const overloads = getOverloads(method);
+      for (const ovl of overloads) {
+        for (const arg of ovl.args) {
+          if (isOcctClass(arg.type)) addIfExternal(arg.type);
+        }
+        const ret = getReturnType(method, ovl);
+        if (isOcctClass(ret)) addIfExternal(ret);
+      }
+    }
+  }
+
+  return imports;
+}
 
 /**
  * Generate a complete TypeScript file containing wrapper classes and enum
  * re-exports for a single OCCT module.
  */
-export function emitTypeScriptWrappers(config: ModuleConfig): string {
+export function emitTypeScriptWrappers(
+  config: ModuleConfig,
+  classToModule: Map<string, string> = new Map(),
+): string {
   const sections: string[] = [];
 
   // File header with Module declaration
   sections.push(FILE_HEADER);
+
+  // Cross-module imports
+  const externalImports = collectExternalClasses(config, classToModule);
+  for (const [sourceModule, classNames] of [...externalImports.entries()].sort()) {
+    const names = [...classNames].sort().join(', ');
+    sections.push(`import { ${names} } from './${sourceModule}.js';`);
+  }
 
   // Enums (sorted for deterministic output)
   const enumNames = Object.keys(config.enums).sort();
@@ -360,8 +627,8 @@ export function emitTypeScriptWrappers(config: ModuleConfig): string {
     sections.push(emitEnum(enumName, config.enums[enumName]));
   }
 
-  // Classes (sorted for deterministic output)
-  const classNames = Object.keys(config.classes).sort();
+  // Classes — topologically sorted so parent classes are emitted before children
+  const classNames = topoSortClasses(config.classes);
   for (const className of classNames) {
     sections.push(emitClass(className, config.classes[className]));
   }

@@ -10,21 +10,6 @@ import { getOverloads, getReturnType, isOverloaded } from './parse-config.js';
 import { cppToEmbindType } from './type-mapper.js';
 
 // ---------------------------------------------------------------------------
-// Known inheritance relationships for base<> declarations
-// ---------------------------------------------------------------------------
-
-const INHERITANCE_MAP: Record<string, string> = {
-  TopoDS_Vertex: 'TopoDS_Shape',
-  TopoDS_Edge: 'TopoDS_Shape',
-  TopoDS_Wire: 'TopoDS_Shape',
-  TopoDS_Face: 'TopoDS_Shape',
-  TopoDS_Shell: 'TopoDS_Shape',
-  TopoDS_Solid: 'TopoDS_Shape',
-  TopoDS_Compound: 'TopoDS_Shape',
-  BRep_Builder: 'TopoDS_Builder',
-};
-
-// ---------------------------------------------------------------------------
 // Helper: format a constructor arg list as embind template params
 // ---------------------------------------------------------------------------
 
@@ -55,9 +40,9 @@ function emitLambdaMethod(
     lambdaParams.push(`${isConst ? 'const ' : ''}${className}& self`);
   }
   for (const arg of overload.args) {
-    // For mut args, pass by value (creates mutable copy for C++ non-const ref params)
+    // For mut args, pass by mutable reference so C++ can modify the original object
     if (arg.mut) {
-      lambdaParams.push(`${arg.type} ${arg.name}`);
+      lambdaParams.push(`${arg.type}& ${arg.name}`);
     } else {
       lambdaParams.push(`${cppToEmbindType(arg.type)} ${arg.name}`);
     }
@@ -182,8 +167,8 @@ function emitMethod(
 function emitClassBinding(className: string, classDef: ClassDef): string {
   const lines: string[] = [];
 
-  // Class declaration with optional base<>
-  const baseClass = INHERITANCE_MAP[className];
+  // Class declaration with optional base<> (from header parsing)
+  const baseClass = classDef.inherits;
   if (baseClass) {
     lines.push(`  class_<${className}, base<${baseClass}>>("${className}")`);
   } else {
@@ -237,6 +222,23 @@ export function emitEmbindModule(config: ModuleConfig): string {
   const includes = new Set<string>();
   for (const classDef of Object.values(config.classes)) {
     includes.add(classDef.include);
+    // Include headers for OCCT types referenced in constructors and methods.
+    // Any type containing '_' (except Standard_*) is an OCCT class needing its header.
+    const needsInclude = (t: string) => t.includes('_') && !t.startsWith('Standard_');
+    for (const ctor of classDef.constructors) {
+      for (const arg of ctor.args) {
+        if (needsInclude(arg.type)) includes.add(`${arg.type}.hxx`);
+      }
+    }
+    for (const method of Object.values(classDef.methods)) {
+      for (const ovl of getOverloads(method)) {
+        for (const arg of ovl.args) {
+          if (needsInclude(arg.type)) includes.add(`${arg.type}.hxx`);
+        }
+        const ret = getReturnType(method, ovl);
+        if (needsInclude(ret)) includes.add(`${ret}.hxx`);
+      }
+    }
   }
   for (const enumDef of Object.values(config.enums)) {
     includes.add(enumDef.include);

@@ -5,3 +5,9 @@ modules:
   TKBRep:
     enabled: true
     config: TKBRep.yaml
+  TKTopAlgo:
+    enabled: true
+    config: TKTopAlgo.yaml
+  TKGeomBase:
+    enabled: true
+    config: TKGeomBase.yaml

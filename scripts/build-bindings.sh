@@ -115,6 +115,12 @@ em++ \
     -I"${OCCT_INSTALL}/include/opencascade" \
     "${CPP_FILES[@]}" \
     -L"${OCCT_INSTALL}/lib" \
+    -lTKOffset \
+    -lTKBO \
+    -lTKBool \
+    -lTKShHealing \
+    -lTKTopAlgo \
+    -lTKGeomAlgo \
     -lTKBRep \
     -lTKGeomBase \
     -lTKG3d \

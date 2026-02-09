@@ -1,0 +1,64 @@
+module: TKGeomBase
+
+classes:
+  gce_MakeCirc:
+    suppress_inherits: true
+    constructors:
+      - match: [gp_Ax2, Standard_Real]
+        factory: FromAx2
+      - match: [gp_Pnt, gp_Pnt, gp_Pnt]
+        factory: From3Points
+      - match: [gp_Pnt, gp_Dir, Standard_Real]
+        factory: FromCenterNormRadius
+      - match: [gp_Ax1, Standard_Real]
+        factory: FromAxis
+    methods:
+      Value: {}
+      IsDone: {}
+      Status: {}
+
+  gce_MakeCirc2d:
+    suppress_inherits: true
+    constructors:
+      - match: [gp_Ax22d, Standard_Real]
+        factory: FromAx22d
+      - match: [gp_Pnt2d, gp_Pnt2d, gp_Pnt2d]
+        factory: From3Points
+      - match: [gp_Pnt2d, Standard_Real, Standard_Boolean]
+        factory: FromCenterRadius
+    methods:
+      Value: {}
+      IsDone: {}
+      Status: {}
+
+  gce_MakeLin:
+    suppress_inherits: true
+    constructors:
+      - match: [gp_Ax1]
+        factory: FromAx1
+      - match: [gp_Pnt, gp_Dir]
+        factory: FromPntDir
+      - match: [gp_Pnt, gp_Pnt]
+        factory: From2Points
+    methods:
+      Value: {}
+      IsDone: {}
+      Status: {}
+
+  gce_MakeLin2d:
+    suppress_inherits: true
+    constructors:
+      - match: [gp_Ax2d]
+        factory: FromAx2d
+      - match: [gp_Pnt2d, gp_Dir2d]
+        factory: FromPntDir
+      - match: [gp_Pnt2d, gp_Pnt2d]
+        factory: From2Points
+    methods:
+      Value: {}
+      IsDone: {}
+      Status: {}
+
+enums:
+  gce_ErrorType:
+    include: gce_ErrorType.hxx

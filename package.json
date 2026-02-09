@@ -17,6 +17,56 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./TKMath": {
+      "import": {
+        "types": "./dist/TKMath.d.ts",
+        "default": "./dist/TKMath.js"
+      },
+      "require": {
+        "types": "./dist/TKMath.d.cts",
+        "default": "./dist/TKMath.cjs"
+      }
+    },
+    "./TKBRep": {
+      "import": {
+        "types": "./dist/TKBRep.d.ts",
+        "default": "./dist/TKBRep.js"
+      },
+      "require": {
+        "types": "./dist/TKBRep.d.cts",
+        "default": "./dist/TKBRep.cjs"
+      }
+    },
+    "./TKTopAlgo": {
+      "import": {
+        "types": "./dist/TKTopAlgo.d.ts",
+        "default": "./dist/TKTopAlgo.js"
+      },
+      "require": {
+        "types": "./dist/TKTopAlgo.d.cts",
+        "default": "./dist/TKTopAlgo.cjs"
+      }
+    },
+    "./TKGeomBase": {
+      "import": {
+        "types": "./dist/TKGeomBase.d.ts",
+        "default": "./dist/TKGeomBase.js"
+      },
+      "require": {
+        "types": "./dist/TKGeomBase.d.cts",
+        "default": "./dist/TKGeomBase.cjs"
+      }
+    },
+    "./helpers": {
+      "import": {
+        "types": "./dist/helpers.d.ts",
+        "default": "./dist/helpers.js"
+      },
+      "require": {
+        "types": "./dist/helpers.d.cts",
+        "default": "./dist/helpers.cjs"
+      }
+    },
     "./occt.wasm": "./dist/occt.wasm"
   },
   "files": [

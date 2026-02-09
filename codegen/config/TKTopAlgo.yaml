@@ -1,0 +1,126 @@
+module: TKTopAlgo
+
+classes:
+  BRepBuilderAPI_MakeEdge:
+    suppress_inherits: true
+    constructors:
+      - match: [gp_Pnt, gp_Pnt]
+        factory: FromPoints
+      - match: [TopoDS_Vertex, TopoDS_Vertex]
+        factory: FromVertices
+      - match: [gp_Lin]
+        factory: FromLine
+      - match: [gp_Lin, Standard_Real, Standard_Real]
+        factory: FromLineParams
+      - match: [gp_Lin, gp_Pnt, gp_Pnt]
+        factory: FromLinePoints
+      - match: [gp_Lin, TopoDS_Vertex, TopoDS_Vertex]
+        factory: FromLineVertices
+      - match: [gp_Circ]
+        factory: FromCircle
+      - match: [gp_Circ, Standard_Real, Standard_Real]
+        factory: FromCircleParams
+      - match: [gp_Circ, gp_Pnt, gp_Pnt]
+        factory: FromCirclePoints
+      - match: [gp_Circ, TopoDS_Vertex, TopoDS_Vertex]
+        factory: FromCircleVertices
+      - match: [gp_Elips]
+        factory: FromEllipse
+      - match: [gp_Elips, Standard_Real, Standard_Real]
+        factory: FromEllipseParams
+      - match: [gp_Elips, gp_Pnt, gp_Pnt]
+        factory: FromEllipsePoints
+    methods:
+      Error: {}
+      Edge: {}
+      Vertex1: {}
+      Vertex2: {}
+      IsDone: {}
+      Shape: {}
+    skip: []
+
+  BRepBuilderAPI_MakeEdge2d:
+    suppress_inherits: true
+    constructors:
+      - match: [gp_Pnt2d, gp_Pnt2d]
+        factory: FromPoints
+      - match: [TopoDS_Vertex, TopoDS_Vertex]
+        factory: FromVertices
+      - match: [gp_Lin2d]
+        factory: FromLine
+      - match: [gp_Lin2d, Standard_Real, Standard_Real]
+        factory: FromLineParams
+      - match: [gp_Lin2d, gp_Pnt2d, gp_Pnt2d]
+        factory: FromLinePoints
+      - match: [gp_Circ2d]
+        factory: FromCircle
+      - match: [gp_Circ2d, Standard_Real, Standard_Real]
+        factory: FromCircleParams
+      - match: [gp_Circ2d, gp_Pnt2d, gp_Pnt2d]
+        factory: FromCirclePoints
+    methods:
+      Error: {}
+      Edge: {}
+      Vertex1: {}
+      Vertex2: {}
+      IsDone: {}
+      Shape: {}
+    skip: []
+
+  BRepBuilderAPI_MakeWire:
+    suppress_inherits: true
+    constructors:
+      - match: []
+      - match: [TopoDS_Edge]
+        factory: FromEdge
+      - match: [TopoDS_Edge, TopoDS_Edge]
+        factory: From2Edges
+      - match: [TopoDS_Edge, TopoDS_Edge, TopoDS_Edge]
+        factory: From3Edges
+      - match: [TopoDS_Edge, TopoDS_Edge, TopoDS_Edge, TopoDS_Edge]
+        factory: From4Edges
+      - match: [TopoDS_Wire]
+        factory: FromWire
+      - match: [TopoDS_Wire, TopoDS_Edge]
+        factory: FromWireEdge
+    methods:
+      Add:
+        overloads:
+          - match: [TopoDS_Edge]
+            suffix: _Edge
+          - match: [TopoDS_Wire]
+            suffix: _Wire
+      Error: {}
+      Wire: {}
+      Edge: {}
+      Vertex: {}
+      IsDone: {}
+      Shape: {}
+
+  BRepBuilderAPI_MakePolygon:
+    suppress_inherits: true
+    constructors:
+      - match: []
+      - match: [gp_Pnt, gp_Pnt]
+        factory: From2Points
+    methods:
+      Add:
+        overloads:
+          - match: [gp_Pnt]
+            suffix: _Pnt
+          - match: [TopoDS_Vertex]
+            suffix: _Vertex
+      Added: {}
+      Close: {}
+      FirstVertex: {}
+      LastVertex: {}
+      Edge: {}
+      Wire: {}
+      IsDone: {}
+      Shape: {}
+
+enums:
+  BRepBuilderAPI_EdgeError:
+    include: BRepBuilderAPI_EdgeError.hxx
+  BRepBuilderAPI_WireError:
+    include: BRepBuilderAPI_WireError.hxx

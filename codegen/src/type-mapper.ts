@@ -26,51 +26,59 @@ const cppToEmbindMap: Record<string, string> = {
   'float': 'float',
 };
 
-// Known OCCT class prefixes (types that are OCCT classes, not primitives)
-const occtPrefixes = [
-  'gp_', 'TopoDS_', 'TopExp_', 'BRep_', 'TopAbs_', 'TopLoc_',
-  'Geom_', 'Geom2d_', 'BRepTools_', 'TopTools_',
-];
+// Dynamic registries - populated by codegen before emitting
+const registeredEnums = new Set<string>();
+const registeredClasses = new Set<string>();
 
-/** Check if a C++ type is an OCCT class (not a primitive) */
-export function isOcctClass(type: string): boolean {
-  return occtPrefixes.some(p => type.startsWith(p));
+/** Register OCCT enum type names (called from codegen before emit) */
+export function registerEnums(names: string[]): void {
+  for (const name of names) registeredEnums.add(name);
 }
 
-/** Check if a C++ type is an OCCT enum */
+/** Register OCCT class names (called from codegen before emit) */
+export function registerClasses(names: string[]): void {
+  for (const name of names) registeredClasses.add(name);
+}
+
+/** Check if a C++ type is a registered OCCT class (not a primitive or enum) */
+export function isOcctClass(type: string): boolean {
+  if (registeredClasses.has(type)) return true;
+  // Fallback heuristic: OCCT types use Package_Class naming convention
+  // (contains underscore, starts with uppercase, not a primitive, not an enum)
+  if (type in cppToTsMap) return false;
+  if (registeredEnums.has(type)) return false;
+  return /^[A-Z][a-zA-Z0-9]*_[A-Z]/.test(type);
+}
+
+/** Strict check: returns true only if the type was explicitly registered */
+export function isRegisteredClass(type: string): boolean {
+  return registeredClasses.has(type);
+}
+
+/** Check if a C++ type is a registered OCCT enum */
 export function isOcctEnum(type: string): boolean {
-  const knownEnums = [
-    'gp_TrsfForm', 'gp_EulerSequence',
-    'TopAbs_ShapeEnum', 'TopAbs_Orientation', 'TopAbs_State',
-  ];
-  return knownEnums.includes(type);
+  return registeredEnums.has(type);
 }
 
 /** Map C++ type to TypeScript type */
 export function cppToTsType(cppType: string): string {
   if (cppToTsMap[cppType]) return cppToTsMap[cppType];
-  if (isOcctEnum(cppType)) return cppType; // enums are used directly
-  if (isOcctClass(cppType)) return cppType; // OCCT classes map to wrapper class names
-  return cppType; // fallback: use as-is
+  if (isOcctEnum(cppType)) return cppType;
+  if (isOcctClass(cppType)) return cppType;
+  return cppType;
 }
 
 /** Map C++ type to embind signature type */
 export function cppToEmbindType(cppType: string): string {
   if (cppToEmbindMap[cppType]) return cppToEmbindMap[cppType];
-  if (isOcctEnum(cppType)) return cppType; // enums passed by value
-  if (isOcctClass(cppType)) return `const ${cppType}&`; // OCCT classes passed by const ref
+  if (isOcctEnum(cppType)) return cppType;
+  if (isOcctClass(cppType)) return `const ${cppType}&`;
   return cppType;
 }
 
 /** Get TypeScript type for an Arg */
 export function tsTypeForArg(arg: Arg): string {
   return cppToTsType(arg.type);
-}
-
-/** Get embind return type - for OCCT classes, return by value */
-export function embindReturnType(cppType: string): string {
-  if (cppToEmbindMap[cppType]) return cppToEmbindMap[cppType];
-  return cppType; // OCCT classes returned by value
 }
 
 /** Check if a type is a primitive (number, boolean, string, void) in TypeScript */

@@ -76,6 +76,12 @@ target_include_directories(occt PRIVATE "${OCCT_INCLUDE_DIR}")
 #   TKernel     -> Kernel / foundation
 # ---------------------------------------------------------------------------
 set(OCCT_TOOLKIT_NAMES
+    TKOffset
+    TKBO
+    TKBool
+    TKShHealing
+    TKTopAlgo
+    TKGeomAlgo
     TKBRep
     TKGeomBase
     TKG3d
