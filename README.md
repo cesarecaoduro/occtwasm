@@ -1,4 +1,4 @@
-# @cesarecaoduro/occtwasm-core
+# occtwasm-core
 
 OpenCascade (OCCT 8.0.0) compiled to WebAssembly with TypeScript bindings.
 
