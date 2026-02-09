@@ -9,6 +9,7 @@ import { join } from 'node:path';
 export interface Arg {
   name: string;
   type: string; // C++ type (e.g., "Standard_Real", "gp_Pnt")
+  mut?: boolean; // true if the C++ param is a non-const reference (mutable)
 }
 
 export interface MethodOverload {
@@ -17,6 +18,7 @@ export interface MethodOverload {
   returns?: string; // C++ return type, defaults to parent method's returns or "void"
   const?: boolean;
   static?: boolean;
+  output_args?: boolean; // true if this overload uses output ref params (wrapper returns value instead)
 }
 
 export interface MethodDef {
@@ -100,5 +102,6 @@ export function getOverloads(method: MethodDef): MethodOverload[] {
     returns: method.returns,
     const: method.const,
     static: method.static,
+    output_args: method.output_args,
   }];
 }

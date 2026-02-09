@@ -57,6 +57,7 @@ export function cppToTsType(cppType: string): string {
 /** Map C++ type to embind signature type */
 export function cppToEmbindType(cppType: string): string {
   if (cppToEmbindMap[cppType]) return cppToEmbindMap[cppType];
+  if (isOcctEnum(cppType)) return cppType; // enums passed by value
   if (isOcctClass(cppType)) return `const ${cppType}&`; // OCCT classes passed by const ref
   return cppType;
 }

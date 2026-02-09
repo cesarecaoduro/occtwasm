@@ -1,0 +1,3 @@
+[submodule "extern/occt"]
+	path = extern/occt
+	url = https://github.com/Open-Cascade-SAS/OCCT.git

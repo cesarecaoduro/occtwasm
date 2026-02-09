@@ -11,15 +11,6 @@ classes:
         returns: Standard_Boolean
       Nullify:
         returns: void
-      Location:
-        overloads:
-          - suffix: _Get
-            args: []
-            const: true
-            returns: TopLoc_Location
-          - suffix: _Set
-            args: [{ name: Loc, type: TopLoc_Location }]
-            returns: void
       Orientation:
         overloads:
           - suffix: _Get
@@ -104,10 +95,6 @@ classes:
           - suffix: _Set
             args: [{ name: theIsLocked, type: Standard_Boolean }]
             returns: void
-      Moved:
-        args: [{ name: Loc, type: TopLoc_Location }]
-        returns: TopoDS_Shape
-        const: true
       Oriented:
         args: [{ name: Orient, type: TopAbs_Orientation }]
         returns: TopoDS_Shape
@@ -147,12 +134,6 @@ classes:
       Reverse:
         returns: void
       Complement:
-        returns: void
-      Move:
-        args: [{ name: Loc, type: TopLoc_Location }]
-        returns: void
-      Orient:
-        args: [{ name: Orient, type: TopAbs_Orientation }]
         returns: void
       EmptyCopy:
         returns: void
@@ -211,24 +192,30 @@ classes:
       MakeWire:
         args: [{ name: W, type: TopoDS_Wire }]
         output_args: true
+        const: true
         returns: TopoDS_Wire
       MakeShell:
         args: [{ name: Sh, type: TopoDS_Shell }]
         output_args: true
+        const: true
         returns: TopoDS_Shell
       MakeSolid:
         args: [{ name: S, type: TopoDS_Solid }]
         output_args: true
+        const: true
         returns: TopoDS_Solid
       MakeCompound:
         args: [{ name: C, type: TopoDS_Compound }]
         output_args: true
+        const: true
         returns: TopoDS_Compound
       Add:
-        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        args: [{ name: S, type: TopoDS_Shape, mut: true }, { name: C, type: TopoDS_Shape }]
+        const: true
         returns: void
       Remove:
-        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        args: [{ name: S, type: TopoDS_Shape, mut: true }, { name: C, type: TopoDS_Shape }]
+        const: true
         returns: void
 
   TopoDS_Iterator:
@@ -290,66 +277,79 @@ classes:
           - suffix: _Empty
             args: [{ name: V, type: TopoDS_Vertex }]
             output_args: true
+            const: true
             returns: TopoDS_Vertex
           - suffix: _WithPnt
             args: [{ name: V, type: TopoDS_Vertex }, { name: P, type: gp_Pnt }, { name: Tol, type: Standard_Real }]
             output_args: true
+            const: true
             returns: TopoDS_Vertex
       MakeEdge:
-        overloads:
-          - suffix: _Empty
-            args: [{ name: E, type: TopoDS_Edge }]
-            output_args: true
-            returns: TopoDS_Edge
+        args: [{ name: E, type: TopoDS_Edge }]
+        output_args: true
+        const: true
+        returns: TopoDS_Edge
       MakeFace:
-        overloads:
-          - suffix: _Empty
-            args: [{ name: F, type: TopoDS_Face }]
-            output_args: true
-            returns: TopoDS_Face
+        args: [{ name: F, type: TopoDS_Face }]
+        output_args: true
+        const: true
+        returns: TopoDS_Face
       MakeWire:
         args: [{ name: W, type: TopoDS_Wire }]
         output_args: true
+        const: true
         returns: TopoDS_Wire
       MakeShell:
         args: [{ name: Sh, type: TopoDS_Shell }]
         output_args: true
+        const: true
         returns: TopoDS_Shell
       MakeSolid:
         args: [{ name: S, type: TopoDS_Solid }]
         output_args: true
+        const: true
         returns: TopoDS_Solid
       MakeCompound:
         args: [{ name: C, type: TopoDS_Compound }]
         output_args: true
+        const: true
         returns: TopoDS_Compound
       Add:
-        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        args: [{ name: S, type: TopoDS_Shape, mut: true }, { name: C, type: TopoDS_Shape }]
+        const: true
         returns: void
       Remove:
-        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        args: [{ name: S, type: TopoDS_Shape, mut: true }, { name: C, type: TopoDS_Shape }]
+        const: true
         returns: void
       UpdateVertex:
         overloads:
           - suffix: _Tol
             args: [{ name: V, type: TopoDS_Vertex }, { name: Tol, type: Standard_Real }]
+            const: true
           - suffix: _PntTol
             args: [{ name: V, type: TopoDS_Vertex }, { name: P, type: gp_Pnt }, { name: Tol, type: Standard_Real }]
+            const: true
         returns: void
       Degenerated:
         args: [{ name: E, type: TopoDS_Edge }, { name: D, type: Standard_Boolean }]
+        const: true
         returns: void
       Range:
         args: [{ name: E, type: TopoDS_Edge }, { name: First, type: Standard_Real }, { name: Last, type: Standard_Real }]
+        const: true
         returns: void
       SameParameter:
         args: [{ name: E, type: TopoDS_Edge }, { name: S, type: Standard_Boolean }]
+        const: true
         returns: void
       SameRange:
         args: [{ name: E, type: TopoDS_Edge }, { name: S, type: Standard_Boolean }]
+        const: true
         returns: void
       NaturalRestriction:
         args: [{ name: F, type: TopoDS_Face }, { name: N, type: Standard_Boolean }]
+        const: true
         returns: void
 
   BRep_Tool:
@@ -357,7 +357,7 @@ classes:
     constructors: []
     methods:
       IsClosed:
-        args: [{ name: E, type: TopoDS_Edge }]
+        args: [{ name: S, type: TopoDS_Shape }]
         static: true
         returns: Standard_Boolean
       Tolerance:

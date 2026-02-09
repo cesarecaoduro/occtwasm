@@ -15,13 +15,13 @@ using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(cast_helpers) {
 
-  function("TopoDS_ToVertex", &TopoDS::Vertex);
-  function("TopoDS_ToEdge", &TopoDS::Edge);
-  function("TopoDS_ToWire", &TopoDS::Wire);
-  function("TopoDS_ToFace", &TopoDS::Face);
-  function("TopoDS_ToShell", &TopoDS::Shell);
-  function("TopoDS_ToSolid", &TopoDS::Solid);
-  function("TopoDS_ToCompSolid", &TopoDS::CompSolid);
-  function("TopoDS_ToCompound", &TopoDS::Compound);
+  function("TopoDS_ToVertex", +[](const TopoDS_Shape& S) { return TopoDS::Vertex(S); });
+  function("TopoDS_ToEdge", +[](const TopoDS_Shape& S) { return TopoDS::Edge(S); });
+  function("TopoDS_ToWire", +[](const TopoDS_Shape& S) { return TopoDS::Wire(S); });
+  function("TopoDS_ToFace", +[](const TopoDS_Shape& S) { return TopoDS::Face(S); });
+  function("TopoDS_ToShell", +[](const TopoDS_Shape& S) { return TopoDS::Shell(S); });
+  function("TopoDS_ToSolid", +[](const TopoDS_Shape& S) { return TopoDS::Solid(S); });
+  function("TopoDS_ToCompSolid", +[](const TopoDS_Shape& S) { return TopoDS::CompSolid(S); });
+  function("TopoDS_ToCompound", +[](const TopoDS_Shape& S) { return TopoDS::Compound(S); });
 
 }

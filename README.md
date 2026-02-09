@@ -12,7 +12,7 @@ Work in progress. See [plans/PLAN.md](plans/PLAN.md) for the full implementation
 | **B** | Download + build scripts (download-occt.sh, build-wasm.sh, CMakeLists.txt) | Done |
 | **C** | Codegen config + tool (YAML configs, TypeScript codegen) | Done |
 | **D** | Manual binding helpers (cast_helpers.cpp, module-loader.ts, types.ts) | Done |
-| **E** | Run codegen + compile WASM | Pending |
+| **E** | Run codegen + compile WASM | Done |
 | **F** | NPM entry point + TS build | Pending |
 | **G** | Tests (vitest) | Pending |
 
@@ -54,18 +54,19 @@ trsf.SetMirror(new gp_Ax1(origin, new gp_Dir(0,0,1))); // Mirror(gp_Ax1)
 
 ### Prerequisites
 
-- Docker (for Emscripten toolchain)
+- [Emscripten](https://emscripten.org/) (locally installed, e.g. `brew install emscripten`)
 - Node.js >= 18
 - npm
+- CMake (for building OCCT)
 
 ### Build Steps
 
 ```bash
 npm install          # Install TS dependencies
-make download        # Download OCCT source
-make build-occt      # Build OCCT static libs (Docker)
+make init-submodule  # Initialize OCCT git submodule
+make build-occt      # Build OCCT static libs (Emscripten)
 make codegen         # Generate embind C++ and TS wrappers
-make build-bindings  # Compile WASM module (Docker)
+make build-bindings  # Compile WASM module
 npm run build        # Build TypeScript package
 npm test             # Run tests
 ```
@@ -73,7 +74,8 @@ npm test             # Run tests
 ## Project Structure
 
 ```
-scripts/                        # Download and build scripts (Docker-based)
+extern/occt/                     # OCCT source (git submodule, V8_0_0_rc3)
+scripts/                        # Build scripts (local Emscripten)
 codegen/                        # YAML configs + TypeScript code generator
   config/                       # Per-toolkit binding declarations (TKMath.yaml, TKBRep.yaml, ...)
   src/                          # Codegen tool source
@@ -103,7 +105,7 @@ Both directories are compiled together into the final WASM module, but they have
 - **`bindings/generated/`** is overwritten every time `npm run codegen` runs. Any hand-edits here will be lost.
 - **`bindings/manual/`** is never touched by codegen. It holds code that cannot be derived from the YAML configs — such as the `TopoDS` downcasting helpers (static C++ functions) and the TypeScript module loader (async WASM init with environment detection).
 
-The build scripts (`build-bindings.sh` for Docker, `CMakeLists.txt` for CMake) collect `.cpp` files from both directories and link them into a single `occt.wasm`.
+The build scripts (`build-bindings.sh` with em++, `CMakeLists.txt` for CMake) collect `.cpp` files from both directories and link them into a single `occt.wasm`.
 
 ## Initial Scope
 

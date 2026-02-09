@@ -50,5 +50,3 @@ __pycache__/
 .env
 .env.local
 
-# OCCT version stamp
-.occt-version

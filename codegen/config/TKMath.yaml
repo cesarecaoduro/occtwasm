@@ -1104,10 +1104,10 @@ classes:
     methods:
       SetRotation:
         overloads:
-          - suffix: _VecAng
-            args: [{ name: theAxis, type: gp_Vec }, { name: theAngle, type: Standard_Real }]
           - suffix: _VecVec
             args: [{ name: theVecFrom, type: gp_Vec }, { name: theVecTo, type: gp_Vec }]
+          - suffix: _VecVecVec
+            args: [{ name: theVecFrom, type: gp_Vec }, { name: theVecTo, type: gp_Vec }, { name: theHelpCrossVec, type: gp_Vec }]
         returns: void
       SetVectorAndAngle:
         args: [{ name: theAxis, type: gp_Vec }, { name: theAngle, type: Standard_Real }]
@@ -1182,13 +1182,8 @@ classes:
         returns: gp_Quaternion
         const: true
       Multiplied:
-        overloads:
-          - suffix: _Quat
-            args: [{ name: Other, type: gp_Quaternion }]
-            returns: gp_Quaternion
-          - suffix: _Scalar
-            args: [{ name: theScale, type: Standard_Real }]
-            returns: gp_Quaternion
+        args: [{ name: Other, type: gp_Quaternion }]
+        returns: gp_Quaternion
         const: true
       Multiply:
         overloads:
@@ -1196,6 +1191,7 @@ classes:
             args: [{ name: Other, type: gp_Quaternion }]
           - suffix: _Vec
             args: [{ name: theVec, type: gp_Vec }]
+            const: true
             returns: gp_Vec
         returns: void
       Add:

@@ -1,31 +1,28 @@
 # occtwasm - OpenCascade to WebAssembly
 # ======================================
+#
+# Prerequisites:
+#   - Emscripten installed locally (emcmake, emmake, em++ on PATH)
+#   - Node.js / npm installed
 
-OCCT_TAG ?= V8_0_0_rc3
-DOCKER_IMAGE := occtwasm-builder
+.PHONY: all init-submodule build-occt codegen build-bindings build test test-watch typecheck clean clean-all install
 
-.PHONY: all download build-occt codegen build-bindings build test clean docker-build
+all: init-submodule build-occt codegen build-bindings build
 
-all: download build-occt codegen build-bindings build
+# --- OCCT Source (git submodule) ---
+init-submodule:
+	git submodule update --init --recursive
 
-# --- Docker ---
-docker-build:
-	docker build -t $(DOCKER_IMAGE) .
-
-# --- OCCT Source ---
-download:
-	bash scripts/download-occt.sh
-
-# --- Build OCCT static libs (inside Docker) ---
-build-occt: docker-build
+# --- Build OCCT static libs (local Emscripten) ---
+build-occt:
 	bash scripts/build-wasm.sh
 
 # --- Code generation ---
 codegen:
 	npx tsx codegen/src/codegen.ts
 
-# --- Compile embind C++ into WASM (inside Docker) ---
-build-bindings: docker-build
+# --- Compile embind C++ into WASM (local Emscripten) ---
+build-bindings:
 	bash scripts/build-bindings.sh
 
 # --- TypeScript build ---
@@ -47,7 +44,7 @@ clean:
 	rm -rf dist build/occt-wasm build/dist bindings/generated
 
 clean-all: clean
-	rm -rf build/occt-source node_modules
+	rm -rf build/occt-install node_modules
 
 # --- Install deps ---
 install:

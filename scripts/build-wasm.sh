@@ -5,76 +5,68 @@ set -euo pipefail
 # build-wasm.sh
 #
 # Builds OpenCascade (OCCT) from source into static WebAssembly libraries
-# using Docker + Emscripten.  The Docker image can be overridden with the
-# DOCKER_IMAGE environment variable.
+# using a locally-installed Emscripten toolchain.
 #
 # Prerequisites:
-#   - Docker must be installed and running.
-#   - OCCT source must already be downloaded (run download-occt.sh first).
+#   - Emscripten must be installed (emcmake and emmake on PATH).
+#     On macOS: brew install emscripten
+#   - OCCT source must be present at extern/occt/ (git submodule).
+#     Run: git submodule update --init --recursive
 # ---------------------------------------------------------------------------
 
-# Resolve the project root (one directory above this script).
+# ── Resolve paths ─────────────────────────────────────────────────────────
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-DOCKER_IMAGE="${DOCKER_IMAGE:-occtwasm-builder}"
+OCCT_SOURCE="${PROJECT_ROOT}/extern/occt"
 BUILD_DIR="${PROJECT_ROOT}/build/occt-wasm"
-OCCT_SOURCE="${PROJECT_ROOT}/build/occt-source"
 INSTALL_DIR="${PROJECT_ROOT}/build/occt-install"
 
-# ------------------------------------------------------------------
-# Pre-checks
-# ------------------------------------------------------------------
+# ── Pre-checks ────────────────────────────────────────────────────────────
 
 echo "==> Checking prerequisites..."
 
-if [[ ! -d "${OCCT_SOURCE}" ]]; then
+# Verify Emscripten is available
+if ! command -v emcmake &>/dev/null; then
+    echo "ERROR: emcmake is not installed or not in PATH." >&2
+    echo "       Install Emscripten (e.g. brew install emscripten) and try again." >&2
+    exit 1
+fi
+
+if ! command -v emmake &>/dev/null; then
+    echo "ERROR: emmake is not installed or not in PATH." >&2
+    echo "       Install Emscripten (e.g. brew install emscripten) and try again." >&2
+    exit 1
+fi
+
+# Verify OCCT source is present
+if [[ ! -d "${OCCT_SOURCE}" ]] || [[ ! -f "${OCCT_SOURCE}/CMakeLists.txt" ]]; then
     echo "ERROR: OCCT source directory not found at ${OCCT_SOURCE}" >&2
-    echo "       Run scripts/download-occt.sh first to download the OCCT source." >&2
-    exit 1
-fi
-
-if ! command -v docker &>/dev/null; then
-    echo "ERROR: Docker is not installed or not in PATH." >&2
-    echo "       Please install Docker and try again." >&2
-    exit 1
-fi
-
-if ! docker info &>/dev/null; then
-    echo "ERROR: Docker daemon is not running." >&2
-    echo "       Please start Docker and try again." >&2
+    echo "       Run: git submodule update --init --recursive" >&2
     exit 1
 fi
 
 echo "    OCCT source found at ${OCCT_SOURCE}"
-echo "    Docker is available"
-echo "    Using Docker image: ${DOCKER_IMAGE}"
+echo "    emcmake: $(command -v emcmake)"
+echo "    emmake:  $(command -v emmake)"
 
-# ------------------------------------------------------------------
-# Build OCCT inside Docker with Emscripten
-# ------------------------------------------------------------------
+# ── Build OCCT with Emscripten ────────────────────────────────────────────
 
 echo ""
-echo "==> Starting OCCT WebAssembly build inside Docker..."
+echo "==> Starting OCCT WebAssembly build..."
 echo "    Build directory:   ${BUILD_DIR}"
 echo "    Install directory: ${INSTALL_DIR}"
 echo ""
 
-docker run --rm \
-    -v "${PROJECT_ROOT}:/src" \
-    -w /src \
-    "${DOCKER_IMAGE}" \
-    bash -c '
-set -euo pipefail
+mkdir -p "${BUILD_DIR}"
+cd "${BUILD_DIR}"
 
-echo "--- Creating build directory ---"
-mkdir -p /src/build/occt-wasm
-cd /src/build/occt-wasm
-
+# Configure with emcmake
 echo "--- Running emcmake cmake ---"
-emcmake cmake /src/build/occt-source \
+emcmake cmake "${OCCT_SOURCE}" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/src/build/occt-install \
+    -DCMAKE_INSTALL_PREFIX="${INSTALL_DIR}" \
     -DBUILD_LIBRARY_TYPE=Static \
     \
     -DBUILD_MODULE_FoundationClasses=ON \
@@ -102,21 +94,21 @@ emcmake cmake /src/build/occt-source \
     \
     -DBUILD_DOC_Overview=OFF
 
+# Build with emmake
 echo ""
 echo "--- Running emmake make ---"
-emmake make -j$(nproc)
+NPROC=$(sysctl -n hw.logicalcpu 2>/dev/null || nproc 2>/dev/null || echo 4)
+emmake make -j"${NPROC}"
 
+# Install
 echo ""
 echo "--- Running make install ---"
 make install
 
 echo ""
-echo "--- Build and install completed inside Docker ---"
-'
+echo "--- Build and install completed ---"
 
-# ------------------------------------------------------------------
-# Post-build verification
-# ------------------------------------------------------------------
+# ── Post-build verification ───────────────────────────────────────────────
 
 echo ""
 echo "==> Verifying build output..."

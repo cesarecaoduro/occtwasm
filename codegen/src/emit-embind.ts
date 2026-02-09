@@ -7,10 +7,7 @@ import type {
   Arg,
 } from './parse-config.js';
 import { getOverloads, getReturnType, isOverloaded } from './parse-config.js';
-import {
-  cppToEmbindType,
-  embindReturnType,
-} from './type-mapper.js';
+import { cppToEmbindType } from './type-mapper.js';
 
 // ---------------------------------------------------------------------------
 // Known inheritance relationships for base<> declarations
@@ -36,20 +33,46 @@ function constructorTemplateArgs(args: Arg[]): string {
 }
 
 // ---------------------------------------------------------------------------
-// Helper: build select_overload expression for an overloaded method
+// Helper: emit a lambda wrapper for a regular method (non-output-args)
 // ---------------------------------------------------------------------------
 
-function emitSelectOverload(
+function emitLambdaMethod(
   className: string,
   methodName: string,
+  bindingName: string,
   overload: MethodOverload,
   methodDef: MethodDef,
 ): string {
-  const retType = embindReturnType(getReturnType(methodDef, overload));
-  const argTypes = overload.args.map((a) => cppToEmbindType(a.type)).join(', ');
+  const isStatic = overload.static ?? methodDef.static ?? false;
   const isConst = overload.const ?? methodDef.const ?? false;
-  const constSuffix = isConst ? ' const' : '';
-  return `select_overload<${retType}(${argTypes})${constSuffix}>(&${className}::${methodName})`;
+  const retType = getReturnType(methodDef, overload);
+  const hasReturn = retType !== 'void';
+  const bindFn = isStatic ? 'class_function' : 'function';
+
+  // Build lambda parameter list
+  const lambdaParams: string[] = [];
+  if (!isStatic) {
+    lambdaParams.push(`${isConst ? 'const ' : ''}${className}& self`);
+  }
+  for (const arg of overload.args) {
+    // For mut args, pass by value (creates mutable copy for C++ non-const ref params)
+    if (arg.mut) {
+      lambdaParams.push(`${arg.type} ${arg.name}`);
+    } else {
+      lambdaParams.push(`${cppToEmbindType(arg.type)} ${arg.name}`);
+    }
+  }
+
+  // Build call argument list
+  const callArgs = overload.args.map((a) => a.name).join(', ');
+
+  // Build the call expression
+  const callExpr = isStatic
+    ? `${className}::${methodName}(${callArgs})`
+    : `self.${methodName}(${callArgs})`;
+
+  const returnPrefix = hasReturn ? 'return ' : '';
+  return `    .${bindFn}("${bindingName}", +[](${lambdaParams.join(', ')}) { ${returnPrefix}${callExpr}; })`;
 }
 
 // ---------------------------------------------------------------------------
@@ -139,29 +162,14 @@ function emitMethod(
   const overloaded = isOverloaded(method);
   const isStatic = method.static ?? false;
 
-  // Handle output_args methods
-  if (method.output_args) {
-    for (const overload of overloads) {
+  for (const overload of overloads) {
+    const useOutputArgs = overload.output_args || method.output_args;
+    const bindingName = overloaded ? methodName + overload.suffix : methodName;
+    if (useOutputArgs) {
       lines.push(emitOutputArgMethod(className, methodName, method, overload));
+    } else {
+      lines.push(emitLambdaMethod(className, methodName, bindingName, overload, method));
     }
-    return lines.join('\n');
-  }
-
-  if (overloaded) {
-    // Multiple overloads: each needs select_overload and a suffixed name
-    for (const overload of overloads) {
-      const bindingName = methodName + overload.suffix;
-      const isOverloadStatic = overload.static ?? isStatic;
-      const selectExpr = emitSelectOverload(className, methodName, overload, method);
-      const bindFn = isOverloadStatic ? 'class_function' : 'function';
-      lines.push(`    .${bindFn}("${bindingName}", ${selectExpr})`);
-    }
-  } else {
-    // Single method: direct binding
-    const overload = overloads[0];
-    const isMethodStatic = overload.static ?? isStatic;
-    const bindFn = isMethodStatic ? 'class_function' : 'function';
-    lines.push(`    .${bindFn}("${methodName}", &${className}::${methodName})`);
   }
 
   return lines.join('\n');
