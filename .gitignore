@@ -1,0 +1,53 @@
+# Build outputs
+build/
+dist/
+out/
+
+# Generated bindings (re-created by codegen)
+bindings/generated/
+
+# SWIG generated files
+*_wrap.cxx
+*_wrap.c
+*_wrap.h
+
+# Compiled objects
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.wasm
+*.js.mem
+
+# Emscripten
+*.bc
+*.data
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+.env.local
+
+# OCCT version stamp
+.occt-version
