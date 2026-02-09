@@ -5,6 +5,8 @@
 // caching, and support for custom WASM file location.
 
 import type { OcctModule, InitOptions } from "./types";
+import { setOCCTModule } from "./module-registry";
+import { pathToFileURL } from "node:url";
 
 export type { InitOptions } from "./types";
 
@@ -44,9 +46,18 @@ async function loadFactory(): Promise<
   //
   // When consumed as the `@occtwasm/core` npm package the bundler / runtime
   // resolves this relative import against the package's file structure.
+  const metaUrl =
+    (typeof import.meta !== "undefined" && import.meta.url) ? import.meta.url : undefined;
+  const baseUrl = metaUrl ?? (typeof __dirname !== "undefined"
+    ? pathToFileURL(__dirname + "/").href
+    : "");
+  if (!baseUrl) {
+    throw new Error("Unable to resolve occt.js location for module loader.");
+  }
+  const glueUrl = new URL("./occt.js", baseUrl).toString();
   const glue = (await import(
     /* webpackIgnore: true */
-    "../../../build/dist/occt.js"
+    glueUrl
   )) as { default: (moduleOverrides?: Record<string, unknown>) => Promise<OcctModule> };
 
   // Emscripten with EXPORT_ES6=1 places the factory on `default`.
@@ -116,6 +127,7 @@ export async function initOCCT(options?: InitOptions): Promise<OcctModule> {
 
     // Cache for subsequent calls.
     cachedModule = instance;
+    setOCCTModule(instance);
 
     return instance;
   })();

@@ -75,7 +75,8 @@
   "scripts": {
     "codegen": "tsx codegen/src/codegen.ts",
     "build:ts": "tsup",
-    "build": "npm run codegen && npm run build:ts",
+    "build": "npm run codegen && npm run build:ts && npm run copy-wasm",
+    "copy-wasm": "node scripts/copy-wasm.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -105,5 +106,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

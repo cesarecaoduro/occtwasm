@@ -45,14 +45,18 @@ function matchesOverload(yamlMatch: string[], headerArgs: HeaderArg[]): boolean 
 /** Generate a distinguishing suffix from an overload's args.
  *  Strategy: use the first arg type that differs from other overloads.
  */
+function sanitizeSuffixPart(s: string): string {
+  return s.replace(/[^a-zA-Z0-9_]/g, '');
+}
+
+function shortTypeName(t: string): string {
+  return t.includes('_') ? t.split('_').pop()! : t;
+}
+
 function autoSuffix(args: HeaderArg[], allOverloads: HeaderArg[][]): string {
   if (args.length === 0) return '_NoArgs';
-
-  // Try to find a distinguishing type from the first arg
-  const firstType = args[0].type;
-  // Extract the short name after underscore or use whole name
-  const shortName = firstType.includes('_') ? firstType.split('_').pop()! : firstType;
-  return `_${shortName}`;
+  const parts = args.map(a => sanitizeSuffixPart(shortTypeName(a.type)));
+  return `_${parts.join('_')}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -392,6 +396,24 @@ export function mergeHeadersAndConfig(
                 message: `Overload match [${yo.match.join(', ')}] for ${className}.${methodName} not found in header`,
               });
             }
+          }
+        }
+
+        // Ensure suffixes are unique (avoid embind name collisions)
+        if (overloads.length > 1) {
+          const used = new Map<string, number>();
+          for (const ovl of overloads) {
+            const base = ovl.suffix;
+            const count = used.get(base) ?? 0;
+            if (count > 0) {
+              const newSuffix = `${base}_${count + 1}`;
+              warnings.push({
+                level: 'warn',
+                message: `Overload suffix collision for ${className}.${methodName} (${base}); renamed to ${newSuffix}`,
+              });
+              ovl.suffix = newSuffix;
+            }
+            used.set(base, count + 1);
           }
         }
 

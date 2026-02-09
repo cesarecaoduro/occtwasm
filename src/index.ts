@@ -9,6 +9,7 @@
 
 // Module loader & types
 export { initOCCT } from '../bindings/manual/ts/module-loader.js';
+export { getOCCTModule, setOCCTModule } from '../bindings/manual/ts/module-registry.js';
 export type {
   OcctModule,
   InitOptions,

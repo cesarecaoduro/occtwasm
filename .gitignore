@@ -50,3 +50,9 @@ __pycache__/
 .env
 .env.local
 
+# Viewer WASM copies (built from build/dist/)
+examples/viewer/public/
+
+#Plans
+plan*/
+

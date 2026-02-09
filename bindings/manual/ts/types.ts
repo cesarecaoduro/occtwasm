@@ -47,6 +47,7 @@ interface ManualHelperFunctions {
 export interface GPropGPropsHandle {
   Mass(): number;
   CentreOfMass(): EmbindHandles.gp_Pnt;
+  MatrixOfInertia(): EmbindHandles.gp_Mat;
   delete(): void;
 }
 
@@ -61,11 +62,15 @@ export interface BRepAlgoAPISectionHandle {
 /** BRepOffsetAPI_ThruSections raw handle — bound manually in loft_helpers.cpp */
 export interface BRepOffsetAPIThruSectionsHandle {
   AddWire(wire: EmbindHandles.TopoDS_Wire): void;
+  AddVertex(vertex: EmbindHandles.TopoDS_Vertex): void;
   CheckCompatibility(check: boolean): void;
   SetSmoothing(useSmoothing: boolean): void;
+  SetMaxDegree(maxDegree: number): void;
   Build(): void;
   IsDone(): boolean;
   Shape(): EmbindHandles.TopoDS_Shape;
+  FirstShape(): EmbindHandles.TopoDS_Shape;
+  LastShape(): EmbindHandles.TopoDS_Shape;
   delete(): void;
 }
 

@@ -43,11 +43,11 @@ export function registerClasses(names: string[]): void {
 /** Check if a C++ type is a registered OCCT class (not a primitive or enum) */
 export function isOcctClass(type: string): boolean {
   if (registeredClasses.has(type)) return true;
-  // Fallback heuristic: OCCT types use Package_Class naming convention
-  // (contains underscore, starts with uppercase, not a primitive, not an enum)
   if (type in cppToTsMap) return false;
   if (registeredEnums.has(type)) return false;
-  return /^[A-Z][a-zA-Z0-9]*_[A-Z]/.test(type);
+  if (type.startsWith('Standard_')) return false;
+  // Be strict: only treat explicitly registered classes as embind-wrapped.
+  return false;
 }
 
 /** Strict check: returns true only if the type was explicitly registered */

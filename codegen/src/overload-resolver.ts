@@ -1,6 +1,6 @@
 import type { Arg, MethodOverload, MethodDef } from './parse-config.js';
 import { isOverloaded, getOverloads, getReturnType } from './parse-config.js';
-import { cppToTsType, isOcctClass, isOcctEnum, isPrimitive, tsTypeForArg } from './type-mapper.js';
+import { cppToTsType, isOcctEnum, isPrimitive, isRegisteredClass, tsTypeForArg } from './type-mapper.js';
 
 // ---------------------------------------------------------------------------
 // Helper: map a C++ type to a JavaScript `typeof` result string
@@ -21,7 +21,7 @@ function tsTypeof(cppType: string): string {
 // ---------------------------------------------------------------------------
 
 function unwrapArg(index: number, arg: Arg, varPrefix: string): string {
-  if (isOcctClass(arg.type) && !isOcctEnum(arg.type)) {
+  if (isRegisteredClass(arg.type) && !isOcctEnum(arg.type)) {
     return `${varPrefix}[${index}]._handle`;
   }
   if (isOcctEnum(arg.type)) {
@@ -51,7 +51,7 @@ export function generateInstanceofCheck(args: Arg[], varPrefix: string): string 
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (isOcctClass(arg.type)) {
+    if (isRegisteredClass(arg.type)) {
       conditions.push(`${varPrefix}[${i}] instanceof ${arg.type}`);
     } else if (isOcctEnum(arg.type)) {
       // Enums are represented as numbers at runtime
@@ -101,7 +101,7 @@ export function generateOverloadBody(
   }
   const tsReturn = cppToTsType(returnType);
   const returnsVoid = returnType === 'void';
-  const returnsOcctClass = isOcctClass(returnType) && !isOcctEnum(returnType);
+  const returnsOcctClass = isRegisteredClass(returnType) && !isOcctEnum(returnType);
 
   // Determine the method name on the embind handle
   const embindMethodName = isOverloadedMethod
@@ -112,6 +112,8 @@ export function generateOverloadBody(
   const inputArgs = outputArgs ? overload.args.slice(1) : overload.args;
   const argExprs = inputArgs.map((arg, i) => unwrapArg(i, arg, 'args'));
   const argsStr = argExprs.join(', ');
+
+  const ModuleExpr = 'const Module = getOCCTModule();';
 
   // Build the call expression
   let callExpr: string;
@@ -124,6 +126,7 @@ export function generateOverloadBody(
   const returnsEnum = isOcctEnum(returnType);
 
   // Emit the call and handle the return value
+  lines.push(`${indent}${ModuleExpr}`);
   if (returnsVoid) {
     lines.push(`${indent}${callExpr};`);
   } else if (returnsOcctClass) {

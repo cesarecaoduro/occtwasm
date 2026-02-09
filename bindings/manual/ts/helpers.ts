@@ -3,14 +3,14 @@
 // TypeScript wrappers for manual C++ embind helper functions.
 // These functions are registered as free functions on the Module object.
 
-declare const Module: any;
-
-import { gp_Pnt, gp_Pnt2d } from '../../generated/ts/TKMath.js';
+import { gp_Mat, gp_Pln, gp_Pnt, gp_Pnt2d } from '../../generated/ts/TKMath.js';
 import {
   TopoDS_Shape,
   TopoDS_Edge,
   TopoDS_Wire,
+  TopoDS_Vertex,
 } from '../../generated/ts/TKBRep.js';
+import { getOCCTModule } from './module-registry';
 
 // ---------------------------------------------------------------------------
 // Arc helpers
@@ -18,12 +18,14 @@ import {
 
 /** Create a 3D arc edge passing through three points in order. */
 export function makeArcEdge3d(p1: gp_Pnt, p2: gp_Pnt, p3: gp_Pnt): TopoDS_Edge {
+  const Module = getOCCTModule();
   const handle = Module.MakeArcEdge3d(p1._handle, p2._handle, p3._handle);
   return TopoDS_Edge._fromHandle(handle);
 }
 
 /** Create a 2D arc edge (in XY plane) passing through three 2D points in order. */
 export function makeArcEdge2d(p1: gp_Pnt2d, p2: gp_Pnt2d, p3: gp_Pnt2d): TopoDS_Edge {
+  const Module = getOCCTModule();
   const handle = Module.MakeArcEdge2d(p1._handle, p2._handle, p3._handle);
   return TopoDS_Edge._fromHandle(handle);
 }
@@ -34,22 +36,26 @@ export function makeArcEdge2d(p1: gp_Pnt2d, p2: gp_Pnt2d, p3: gp_Pnt2d): TopoDS_
 
 /** Compute the total length of an edge. */
 export function edgeLength(edge: TopoDS_Edge): number {
+  const Module = getOCCTModule();
   return Module.EdgeLength(edge._handle);
 }
 
 /** Find the 3D point at a given arc-length distance from the edge start. */
 export function pointAtLengthOnEdge(edge: TopoDS_Edge, length: number): gp_Pnt {
+  const Module = getOCCTModule();
   const handle = Module.PointAtLengthOnEdge(edge._handle, length);
   return gp_Pnt._fromHandle(handle);
 }
 
 /** Compute the total length of a wire (sum of all edge lengths). */
 export function wireLength(wire: TopoDS_Wire): number {
+  const Module = getOCCTModule();
   return Module.WireLength(wire._handle);
 }
 
 /** Find the 3D point at a given arc-length distance from the wire start. */
 export function pointAtLengthOnWire(wire: TopoDS_Wire, length: number): gp_Pnt {
+  const Module = getOCCTModule();
   const handle = Module.PointAtLengthOnWire(wire._handle, length);
   return gp_Pnt._fromHandle(handle);
 }
@@ -70,23 +76,27 @@ export class GProp_GProps {
 
   Mass(): number { return this._handle.Mass(); }
   CentreOfMass(): gp_Pnt { return gp_Pnt._fromHandle(this._handle.CentreOfMass()); }
+  MatrixOfInertia(): gp_Mat { return gp_Mat._fromHandle(this._handle.MatrixOfInertia()); }
   delete(): void { this._handle.delete(); }
 }
 
 /** Compute linear properties (length for edges/wires). */
 export function linearProperties(shape: TopoDS_Shape): GProp_GProps {
+  const Module = getOCCTModule();
   const handle = Module.BRepGProp_LinearProperties(shape._handle);
   return GProp_GProps._fromHandle(handle);
 }
 
 /** Compute surface properties (area for faces). Mass() returns area. */
 export function surfaceProperties(shape: TopoDS_Shape): GProp_GProps {
+  const Module = getOCCTModule();
   const handle = Module.BRepGProp_SurfaceProperties(shape._handle);
   return GProp_GProps._fromHandle(handle);
 }
 
 /** Compute volume properties (volume for solids). Mass() returns volume. */
 export function volumeProperties(shape: TopoDS_Shape): GProp_GProps {
+  const Module = getOCCTModule();
   const handle = Module.BRepGProp_VolumeProperties(shape._handle);
   return GProp_GProps._fromHandle(handle);
 }
@@ -107,7 +117,15 @@ export class BRepAlgoAPI_Section {
 
   /** Create a section (intersection) between two shapes. Builds immediately. */
   static FromShapes(s1: TopoDS_Shape, s2: TopoDS_Shape): BRepAlgoAPI_Section {
+    const Module = getOCCTModule();
     const h = Module.BRepAlgoAPI_Section.FromShapes(s1._handle, s2._handle);
+    return BRepAlgoAPI_Section._fromHandle(h);
+  }
+
+  /** Create a section between a shape and plane. Builds immediately. */
+  static FromShapePlane(s1: TopoDS_Shape, pln: gp_Pln): BRepAlgoAPI_Section {
+    const Module = getOCCTModule();
+    const h = Module.BRepAlgoAPI_Section.FromShapePlane(s1._handle, pln._handle);
     return BRepAlgoAPI_Section._fromHandle(h);
   }
 
@@ -132,14 +150,19 @@ export class BRepOffsetAPI_ThruSections {
   }
 
   constructor(isSolid: boolean, isRuled: boolean = false) {
+    const Module = getOCCTModule();
     this._handle = new Module.BRepOffsetAPI_ThruSections(isSolid, isRuled);
   }
 
   AddWire(wire: TopoDS_Wire): void { this._handle.AddWire(wire._handle); }
+  AddVertex(vertex: TopoDS_Vertex): void { this._handle.AddVertex(vertex._handle); }
   CheckCompatibility(check: boolean): void { this._handle.CheckCompatibility(check); }
   SetSmoothing(useSmoothing: boolean): void { this._handle.SetSmoothing(useSmoothing); }
+  SetMaxDegree(maxDegree: number): void { this._handle.SetMaxDegree(maxDegree); }
   Build(): void { this._handle.Build(); }
   IsDone(): boolean { return this._handle.IsDone(); }
   Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  FirstShape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.FirstShape()); }
+  LastShape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.LastShape()); }
   delete(): void { this._handle.delete(); }
 }

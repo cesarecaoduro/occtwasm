@@ -54,6 +54,49 @@ const wire = new BRepBuilderAPI_MakeWire(edge, arc);
 console.log(wireLength(wire.Wire())); // ~41.42
 ```
 
+## Live Viewer
+
+A Three.js-powered 3D viewer demonstrates the library's geometry operations interactively. It renders points and wires (edges, arcs, polylines, composite wires) directly from OCCT shapes -- no tessellation needed.
+
+**Demos included:** Edge (line), Arc (3-point), Polyline, Wire (line+arc+line), Loft Profiles, Wire Intersection.
+
+```bash
+cd examples/viewer
+npm install
+npm run dev
+# Open http://localhost:5173
+```
+
+Use the sidebar to switch between demos. Rotate (left drag), pan (right drag), and zoom (scroll) with OrbitControls.
+
+## Module Initialization
+
+All generated bindings resolve the active Emscripten module from `initOCCT()`.
+Call `initOCCT()` once before using any bindings:
+
+```ts
+import { initOCCT } from '@occtwasm/core';
+await initOCCT();
+```
+
+If you host the WASM on a CDN, pass `locateFile`:
+
+```ts
+await initOCCT({
+  locateFile: (path) => `https://cdn.example.com/wasm/${path}`,
+});
+```
+
+## Memory Management
+
+Embind objects are manual‑lifetime. Call `.delete()` on objects you create:
+
+```ts
+const p = new gp_Pnt(1, 2, 3);
+// ...
+p.delete();
+```
+
 ## Building from Source
 
 ### Prerequisites
@@ -143,6 +186,12 @@ tests/                           # Vitest test suite
   wire.test.ts                   #   Wire from line+arc+polyline, length, point at length
   intersection.test.ts           #   Wire-wire intersection
   loft.test.ts                   #   Loft (surface area, volume)
+examples/
+  viewer/                        # Three.js 3D viewer (Vite dev server)
+    src/
+      main.ts                    #   App entry: Three.js scene + OrbitControls + demo switcher
+      occt-to-three.ts           #   OCCT edge/wire → Three.js Line/Points conversion
+      demos/                     #   One file per demo (edge, arc, polyline, wire, loft, intersection)
 build/                           # Build artefacts (gitignored)
   occt-install/                  #   Pre-built OCCT static libraries + headers
   dist/                          #   occt.js + occt.wasm output

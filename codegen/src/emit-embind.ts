@@ -122,10 +122,14 @@ function emitOutputArgMethod(
 
   const bindFn = isStatic ? 'class_function' : 'function';
 
+  const callExpr = isStatic
+    ? `${className}::${methodName}(${callArgs})`
+    : `self.${methodName}(${callArgs})`;
+
   const lines = [
     `    .${bindFn}("${bindingName}", +[](${lambdaParamStr}) {`,
     `        ${outputType} ${outputArg.name};`,
-    `        self.${methodName}(${callArgs});`,
+    `        ${callExpr};`,
     `        return ${outputArg.name};`,
     `    })`,
   ];
