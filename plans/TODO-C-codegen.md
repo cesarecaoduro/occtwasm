@@ -1,25 +1,25 @@
 # Phase C: Codegen Config + Tool
 
-- [ ] Create codegen/config/modules.yaml (module/toolkit enable flags)
-- [ ] Create codegen/config/TKMath.yaml (gp types: ~14 classes + 2 enums)
-  - [ ] gp_XYZ with overloaded SetCoord, Multiply
-  - [ ] gp_Pnt with Mirror/Mirrored/Translate overloads
-  - [ ] gp_Vec with Mirror/Mirrored, Cross, Dot
-  - [ ] gp_Dir, gp_Ax1, gp_Ax2, gp_Ax3
-  - [ ] gp_Trsf with SetMirror/SetRotation/SetTransformation/SetTranslation overloads
-  - [ ] gp_Mat, gp_Quaternion, gp_Lin, gp_Pln, gp_Circ, gp_Elips
-  - [ ] gp_TrsfForm, gp_EulerSequence enums
-- [ ] Create codegen/config/TKBRep.yaml (TopoDS types: ~11 classes + 3 enums)
-  - [ ] TopoDS_Shape (skip TShape)
-  - [ ] TopoDS_Vertex/Edge/Wire/Face/Shell/Solid/Compound
-  - [ ] TopoDS_Builder, TopoDS_Iterator
-  - [ ] TopExp_Explorer
-  - [ ] BRep_Builder (output params -> return values)
-  - [ ] BRep_Tool (static methods, skip UVBox/ChangeUVBox/Triangulations)
-  - [ ] TopAbs_ShapeEnum, TopAbs_Orientation, TopAbs_State enums
-- [ ] Create codegen/src/codegen.ts (main entry point)
-- [ ] Create codegen/src/parse-config.ts (YAML config reader)
-- [ ] Create codegen/src/emit-embind.ts (C++ embind code generator)
-- [ ] Create codegen/src/emit-typescript.ts (TS wrapper class generator)
-- [ ] Create codegen/src/overload-resolver.ts (instanceof dispatch logic)
-- [ ] Create codegen/src/type-mapper.ts (C++ type -> TS type mapping)
+- [x] Create codegen/config/modules.yaml (module/toolkit enable flags)
+- [x] Create codegen/config/TKMath.yaml (gp types: ~14 classes + 2 enums)
+  - [x] gp_XYZ with overloaded SetCoord, Multiply
+  - [x] gp_Pnt with Mirror/Mirrored/Translate overloads
+  - [x] gp_Vec with Mirror/Mirrored, Cross, Dot
+  - [x] gp_Dir, gp_Ax1, gp_Ax2, gp_Ax3
+  - [x] gp_Trsf with SetMirror/SetRotation/SetTransformation/SetTranslation overloads
+  - [x] gp_Mat, gp_Quaternion, gp_Lin, gp_Pln, gp_Circ, gp_Elips
+  - [x] gp_TrsfForm, gp_EulerSequence enums
+- [x] Create codegen/config/TKBRep.yaml (TopoDS types: ~11 classes + 3 enums)
+  - [x] TopoDS_Shape (skip TShape)
+  - [x] TopoDS_Vertex/Edge/Wire/Face/Shell/Solid/Compound
+  - [x] TopoDS_Builder, TopoDS_Iterator
+  - [x] TopExp_Explorer
+  - [x] BRep_Builder (output params -> return values)
+  - [x] BRep_Tool (static methods, skip UVBox/ChangeUVBox/Triangulations)
+  - [x] TopAbs_ShapeEnum, TopAbs_Orientation, TopAbs_State enums
+- [x] Create codegen/src/codegen.ts (main entry point)
+- [x] Create codegen/src/parse-config.ts (YAML config reader)
+- [x] Create codegen/src/emit-embind.ts (C++ embind code generator)
+- [x] Create codegen/src/emit-typescript.ts (TS wrapper class generator)
+- [x] Create codegen/src/overload-resolver.ts (instanceof dispatch logic)
+- [x] Create codegen/src/type-mapper.ts (C++ type -> TS type mapping)

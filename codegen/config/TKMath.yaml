@@ -1,0 +1,1713 @@
+module: TKMath
+
+classes:
+  gp_XYZ:
+    include: gp_XYZ.hxx
+    constructors:
+      - args: []
+      - args: [{ name: X, type: Standard_Real }, { name: Y, type: Standard_Real }, { name: Z, type: Standard_Real }]
+    methods:
+      SetCoord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }, { name: Xi, type: Standard_Real }]
+          - suffix: _XYZ
+            args: [{ name: X, type: Standard_Real }, { name: Y, type: Standard_Real }, { name: Z, type: Standard_Real }]
+        returns: void
+      Coord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }]
+            const: true
+        returns: Standard_Real
+      X:
+        const: true
+        returns: Standard_Real
+      Y:
+        const: true
+        returns: Standard_Real
+      Z:
+        const: true
+        returns: Standard_Real
+      SetX:
+        args: [{ name: X, type: Standard_Real }]
+        returns: void
+      SetY:
+        args: [{ name: Y, type: Standard_Real }]
+        returns: void
+      SetZ:
+        args: [{ name: Z, type: Standard_Real }]
+        returns: void
+      IsEqual:
+        args: [{ name: Other, type: gp_XYZ }, { name: Tolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Add:
+        args: [{ name: Other, type: gp_XYZ }]
+        returns: void
+      Added:
+        args: [{ name: Other, type: gp_XYZ }]
+        returns: gp_XYZ
+        const: true
+      Subtract:
+        args: [{ name: Other, type: gp_XYZ }]
+        returns: void
+      Subtracted:
+        args: [{ name: Other, type: gp_XYZ }]
+        returns: gp_XYZ
+        const: true
+      Multiply:
+        overloads:
+          - suffix: _Scalar
+            args: [{ name: Scalar, type: Standard_Real }]
+          - suffix: _XYZ
+            args: [{ name: Other, type: gp_XYZ }]
+          - suffix: _Mat
+            args: [{ name: M, type: gp_Mat }]
+        returns: void
+      Multiplied:
+        overloads:
+          - suffix: _Scalar
+            args: [{ name: Scalar, type: Standard_Real }]
+            returns: gp_XYZ
+          - suffix: _XYZ
+            args: [{ name: Other, type: gp_XYZ }]
+            returns: gp_XYZ
+          - suffix: _Mat
+            args: [{ name: M, type: gp_Mat }]
+            returns: gp_XYZ
+        const: true
+      Divide:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: void
+      Divided:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: gp_XYZ
+        const: true
+      Cross:
+        args: [{ name: Other, type: gp_XYZ }]
+        returns: void
+      Crossed:
+        args: [{ name: Other, type: gp_XYZ }]
+        returns: gp_XYZ
+        const: true
+      CrossCross:
+        args: [{ name: V1, type: gp_XYZ }, { name: V2, type: gp_XYZ }]
+        returns: void
+      CrossCrossed:
+        args: [{ name: V1, type: gp_XYZ }, { name: V2, type: gp_XYZ }]
+        returns: gp_XYZ
+        const: true
+      Dot:
+        args: [{ name: Other, type: gp_XYZ }]
+        returns: Standard_Real
+        const: true
+      DotCross:
+        args: [{ name: V1, type: gp_XYZ }, { name: V2, type: gp_XYZ }]
+        returns: Standard_Real
+        const: true
+      Modulus:
+        returns: Standard_Real
+        const: true
+      SquareModulus:
+        returns: Standard_Real
+        const: true
+      Normalize:
+        returns: void
+      Normalized:
+        returns: gp_XYZ
+        const: true
+      Reverse:
+        returns: void
+      Reversed:
+        returns: gp_XYZ
+        const: true
+    skip: [GetData, ChangeData, SetLinearForm]
+
+  gp_Pnt:
+    include: gp_Pnt.hxx
+    constructors:
+      - args: []
+      - args: [{ name: XYZ, type: gp_XYZ }]
+      - args: [{ name: Xp, type: Standard_Real }, { name: Yp, type: Standard_Real }, { name: Zp, type: Standard_Real }]
+    methods:
+      SetCoord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }, { name: Xi, type: Standard_Real }]
+          - suffix: _XYZ
+            args: [{ name: Xp, type: Standard_Real }, { name: Yp, type: Standard_Real }, { name: Zp, type: Standard_Real }]
+        returns: void
+      Coord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }]
+            const: true
+        returns: Standard_Real
+      X:
+        const: true
+        returns: Standard_Real
+      Y:
+        const: true
+        returns: Standard_Real
+      Z:
+        const: true
+        returns: Standard_Real
+      SetX:
+        args: [{ name: X, type: Standard_Real }]
+        returns: void
+      SetY:
+        args: [{ name: Y, type: Standard_Real }]
+        returns: void
+      SetZ:
+        args: [{ name: Z, type: Standard_Real }]
+        returns: void
+      SetXYZ:
+        args: [{ name: XYZ, type: gp_XYZ }]
+        returns: void
+      XYZ:
+        const: true
+        returns: gp_XYZ
+      BaryCenter:
+        args: [{ name: Alpha, type: Standard_Real }, { name: P, type: gp_Pnt }, { name: Beta, type: Standard_Real }]
+        returns: void
+      IsEqual:
+        args: [{ name: Other, type: gp_Pnt }, { name: LinearTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Distance:
+        args: [{ name: Other, type: gp_Pnt }]
+        returns: Standard_Real
+        const: true
+      SquareDistance:
+        args: [{ name: Other, type: gp_Pnt }]
+        returns: Standard_Real
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Pnt
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Pnt
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Pnt
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Pnt
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Pnt
+        const: true
+
+  gp_Vec:
+    include: gp_Vec.hxx
+    constructors:
+      - args: []
+      - args: [{ name: V, type: gp_Dir }]
+        factory: FromDir
+      - args: [{ name: Coord, type: gp_XYZ }]
+        factory: FromXYZ
+      - args: [{ name: Xv, type: Standard_Real }, { name: Yv, type: Standard_Real }, { name: Zv, type: Standard_Real }]
+      - args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+    methods:
+      SetCoord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }, { name: Xi, type: Standard_Real }]
+          - suffix: _XYZ
+            args: [{ name: Xv, type: Standard_Real }, { name: Yv, type: Standard_Real }, { name: Zv, type: Standard_Real }]
+        returns: void
+      Coord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }]
+            const: true
+        returns: Standard_Real
+      X:
+        const: true
+        returns: Standard_Real
+      Y:
+        const: true
+        returns: Standard_Real
+      Z:
+        const: true
+        returns: Standard_Real
+      SetX:
+        args: [{ name: X, type: Standard_Real }]
+        returns: void
+      SetY:
+        args: [{ name: Y, type: Standard_Real }]
+        returns: void
+      SetZ:
+        args: [{ name: Z, type: Standard_Real }]
+        returns: void
+      SetXYZ:
+        args: [{ name: XYZ, type: gp_XYZ }]
+        returns: void
+      XYZ:
+        const: true
+        returns: gp_XYZ
+      IsEqual:
+        args: [{ name: Other, type: gp_Vec }, { name: LinearTolerance, type: Standard_Real }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsNormal:
+        args: [{ name: Other, type: gp_Vec }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsOpposite:
+        args: [{ name: Other, type: gp_Vec }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsParallel:
+        args: [{ name: Other, type: gp_Vec }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Angle:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: Standard_Real
+        const: true
+      AngleWithRef:
+        args: [{ name: Other, type: gp_Vec }, { name: VRef, type: gp_Vec }]
+        returns: Standard_Real
+        const: true
+      Magnitude:
+        returns: Standard_Real
+        const: true
+      SquareMagnitude:
+        returns: Standard_Real
+        const: true
+      Add:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: void
+      Added:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: gp_Vec
+        const: true
+      Subtract:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: void
+      Subtracted:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: gp_Vec
+        const: true
+      Multiply:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: void
+      Multiplied:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: gp_Vec
+        const: true
+      Divide:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: void
+      Divided:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: gp_Vec
+        const: true
+      Cross:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: void
+      Crossed:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: gp_Vec
+        const: true
+      CrossCross:
+        args: [{ name: V1, type: gp_Vec }, { name: V2, type: gp_Vec }]
+        returns: void
+      CrossCrossed:
+        args: [{ name: V1, type: gp_Vec }, { name: V2, type: gp_Vec }]
+        returns: gp_Vec
+        const: true
+      Dot:
+        args: [{ name: Other, type: gp_Vec }]
+        returns: Standard_Real
+        const: true
+      DotCross:
+        args: [{ name: V1, type: gp_Vec }, { name: V2, type: gp_Vec }]
+        returns: Standard_Real
+        const: true
+      Normalize:
+        returns: void
+      Normalized:
+        returns: gp_Vec
+        const: true
+      Reverse:
+        returns: void
+      Reversed:
+        returns: gp_Vec
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Vec
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Vec
+        const: true
+      Scale:
+        args: [{ name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: S, type: Standard_Real }]
+        returns: gp_Vec
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Vec
+        const: true
+    skip: [SetLinearForm]
+
+  gp_Dir:
+    include: gp_Dir.hxx
+    constructors:
+      - args: []
+      - args: [{ name: V, type: gp_Vec }]
+        factory: FromVec
+      - args: [{ name: XYZ, type: gp_XYZ }]
+        factory: FromXYZ
+      - args: [{ name: Xv, type: Standard_Real }, { name: Yv, type: Standard_Real }, { name: Zv, type: Standard_Real }]
+    methods:
+      SetCoord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }, { name: Xi, type: Standard_Real }]
+          - suffix: _XYZ
+            args: [{ name: Xv, type: Standard_Real }, { name: Yv, type: Standard_Real }, { name: Zv, type: Standard_Real }]
+        returns: void
+      Coord:
+        overloads:
+          - suffix: _Index
+            args: [{ name: Index, type: Standard_Integer }]
+            const: true
+        returns: Standard_Real
+      X:
+        const: true
+        returns: Standard_Real
+      Y:
+        const: true
+        returns: Standard_Real
+      Z:
+        const: true
+        returns: Standard_Real
+      SetX:
+        args: [{ name: X, type: Standard_Real }]
+        returns: void
+      SetY:
+        args: [{ name: Y, type: Standard_Real }]
+        returns: void
+      SetZ:
+        args: [{ name: Z, type: Standard_Real }]
+        returns: void
+      SetXYZ:
+        args: [{ name: XYZ, type: gp_XYZ }]
+        returns: void
+      XYZ:
+        const: true
+        returns: gp_XYZ
+      IsEqual:
+        args: [{ name: Other, type: gp_Dir }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsNormal:
+        args: [{ name: Other, type: gp_Dir }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsOpposite:
+        args: [{ name: Other, type: gp_Dir }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsParallel:
+        args: [{ name: Other, type: gp_Dir }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Angle:
+        args: [{ name: Other, type: gp_Dir }]
+        returns: Standard_Real
+        const: true
+      AngleWithRef:
+        args: [{ name: Other, type: gp_Dir }, { name: VRef, type: gp_Dir }]
+        returns: Standard_Real
+        const: true
+      Cross:
+        args: [{ name: Other, type: gp_Dir }]
+        returns: void
+      Crossed:
+        args: [{ name: Other, type: gp_Dir }]
+        returns: gp_Dir
+        const: true
+      CrossCross:
+        args: [{ name: V1, type: gp_Dir }, { name: V2, type: gp_Dir }]
+        returns: void
+      CrossCrossed:
+        args: [{ name: V1, type: gp_Dir }, { name: V2, type: gp_Dir }]
+        returns: gp_Dir
+        const: true
+      Dot:
+        args: [{ name: Other, type: gp_Dir }]
+        returns: Standard_Real
+        const: true
+      DotCross:
+        args: [{ name: V1, type: gp_Dir }, { name: V2, type: gp_Dir }]
+        returns: Standard_Real
+        const: true
+      Reverse:
+        returns: void
+      Reversed:
+        returns: gp_Dir
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Dir
+            args: [{ name: V, type: gp_Dir }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Dir
+            args: [{ name: V, type: gp_Dir }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Dir
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Dir
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Dir
+        const: true
+
+  gp_Ax1:
+    include: gp_Ax1.hxx
+    constructors:
+      - args: []
+      - args: [{ name: P, type: gp_Pnt }, { name: V, type: gp_Dir }]
+    methods:
+      SetDirection:
+        args: [{ name: V, type: gp_Dir }]
+        returns: void
+      SetLocation:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: void
+      Direction:
+        const: true
+        returns: gp_Dir
+      Location:
+        const: true
+        returns: gp_Pnt
+      IsCoaxial:
+        args: [{ name: Other, type: gp_Ax1 }, { name: AngularTolerance, type: Standard_Real }, { name: LinearTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsNormal:
+        args: [{ name: Other, type: gp_Ax1 }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsOpposite:
+        args: [{ name: Other, type: gp_Ax1 }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      IsParallel:
+        args: [{ name: Other, type: gp_Ax1 }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Angle:
+        args: [{ name: Other, type: gp_Ax1 }]
+        returns: Standard_Real
+        const: true
+      Reverse:
+        returns: void
+      Reversed:
+        returns: gp_Ax1
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Ax1
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Ax1
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Ax1
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Ax1
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Ax1
+        const: true
+
+  gp_Ax2:
+    include: gp_Ax2.hxx
+    constructors:
+      - args: []
+      - args: [{ name: P, type: gp_Pnt }, { name: N, type: gp_Dir }]
+      - args: [{ name: P, type: gp_Pnt }, { name: N, type: gp_Dir }, { name: Vx, type: gp_Dir }]
+    methods:
+      SetAxis:
+        args: [{ name: A1, type: gp_Ax1 }]
+        returns: void
+      SetDirection:
+        args: [{ name: V, type: gp_Dir }]
+        returns: void
+      SetLocation:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: void
+      SetXDirection:
+        args: [{ name: Vx, type: gp_Dir }]
+        returns: void
+      SetYDirection:
+        args: [{ name: Vy, type: gp_Dir }]
+        returns: void
+      Axis:
+        const: true
+        returns: gp_Ax1
+      Direction:
+        const: true
+        returns: gp_Dir
+      Location:
+        const: true
+        returns: gp_Pnt
+      XDirection:
+        const: true
+        returns: gp_Dir
+      YDirection:
+        const: true
+        returns: gp_Dir
+      Angle:
+        args: [{ name: Other, type: gp_Ax2 }]
+        returns: Standard_Real
+        const: true
+      IsCoplanar:
+        overloads:
+          - suffix: _Ax2
+            args: [{ name: Other, type: gp_Ax2 }, { name: LinearTolerance, type: Standard_Real }, { name: AngularTolerance, type: Standard_Real }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }, { name: LinearTolerance, type: Standard_Real }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Ax2
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Ax2
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Ax2
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Ax2
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Ax2
+        const: true
+
+  gp_Ax3:
+    include: gp_Ax3.hxx
+    constructors:
+      - args: []
+      - args: [{ name: A, type: gp_Ax2 }]
+      - args: [{ name: P, type: gp_Pnt }, { name: N, type: gp_Dir }]
+      - args: [{ name: P, type: gp_Pnt }, { name: N, type: gp_Dir }, { name: Vx, type: gp_Dir }]
+    methods:
+      SetAxis:
+        args: [{ name: A1, type: gp_Ax1 }]
+        returns: void
+      SetDirection:
+        args: [{ name: V, type: gp_Dir }]
+        returns: void
+      SetLocation:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: void
+      SetXDirection:
+        args: [{ name: Vx, type: gp_Dir }]
+        returns: void
+      SetYDirection:
+        args: [{ name: Vy, type: gp_Dir }]
+        returns: void
+      Axis:
+        const: true
+        returns: gp_Ax1
+      Direction:
+        const: true
+        returns: gp_Dir
+      Location:
+        const: true
+        returns: gp_Pnt
+      XDirection:
+        const: true
+        returns: gp_Dir
+      YDirection:
+        const: true
+        returns: gp_Dir
+      Direct:
+        const: true
+        returns: Standard_Boolean
+      XReverse:
+        returns: void
+      YReverse:
+        returns: void
+      ZReverse:
+        returns: void
+      Ax2:
+        const: true
+        returns: gp_Ax2
+      Angle:
+        args: [{ name: Other, type: gp_Ax3 }]
+        returns: Standard_Real
+        const: true
+      IsCoplanar:
+        overloads:
+          - suffix: _Ax3
+            args: [{ name: Other, type: gp_Ax3 }, { name: LinearTolerance, type: Standard_Real }, { name: AngularTolerance, type: Standard_Real }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }, { name: LinearTolerance, type: Standard_Real }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Ax3
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Ax3
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Ax3
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Ax3
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Ax3
+        const: true
+
+  gp_Trsf:
+    include: gp_Trsf.hxx
+    constructors:
+      - args: []
+    methods:
+      SetMirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      SetRotation:
+        overloads:
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+          - suffix: _Quat
+            args: [{ name: R, type: gp_Quaternion }]
+        returns: void
+      SetScale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      SetDisplacement:
+        args: [{ name: FromSystem1, type: gp_Ax3 }, { name: ToSystem2, type: gp_Ax3 }]
+        returns: void
+      SetTransformation:
+        overloads:
+          - suffix: _Ax3
+            args: [{ name: ToSystem, type: gp_Ax3 }]
+          - suffix: _Ax3Ax3
+            args: [{ name: FromSystem1, type: gp_Ax3 }, { name: ToSystem2, type: gp_Ax3 }]
+        returns: void
+      SetTranslation:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      SetTranslationPart:
+        args: [{ name: V, type: gp_Vec }]
+        returns: void
+      SetScaleFactor:
+        args: [{ name: S, type: Standard_Real }]
+        returns: void
+      SetForm:
+        args: [{ name: P, type: gp_TrsfForm }]
+        returns: void
+      IsNegative:
+        const: true
+        returns: Standard_Boolean
+      Form:
+        const: true
+        returns: gp_TrsfForm
+      ScaleFactor:
+        const: true
+        returns: Standard_Real
+      TranslationPart:
+        const: true
+        returns: gp_XYZ
+      GetRotation:
+        overloads:
+          - suffix: _Quat
+            args: []
+            const: true
+        returns: gp_Quaternion
+      VectorialPart:
+        const: true
+        returns: gp_Mat
+      HVectorialPart:
+        const: true
+        returns: gp_Mat
+      Value:
+        args: [{ name: Row, type: Standard_Integer }, { name: Col, type: Standard_Integer }]
+        returns: Standard_Real
+        const: true
+      Invert:
+        returns: void
+      Inverted:
+        returns: gp_Trsf
+        const: true
+      Multiply:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Multiplied:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Trsf
+        const: true
+      PreMultiply:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Power:
+        args: [{ name: N, type: Standard_Integer }]
+        returns: void
+      Powered:
+        args: [{ name: N, type: Standard_Integer }]
+        returns: gp_Trsf
+        const: true
+    skip: [SetValues]
+
+  gp_Mat:
+    include: gp_Mat.hxx
+    constructors:
+      - args: []
+      - args: [{ name: Col1, type: gp_XYZ }, { name: Col2, type: gp_XYZ }, { name: Col3, type: gp_XYZ }]
+    methods:
+      SetCol:
+        args: [{ name: Col, type: Standard_Integer }, { name: Value, type: gp_XYZ }]
+        returns: void
+      SetCols:
+        args: [{ name: Col1, type: gp_XYZ }, { name: Col2, type: gp_XYZ }, { name: Col3, type: gp_XYZ }]
+        returns: void
+      SetCross:
+        args: [{ name: Ref, type: gp_XYZ }]
+        returns: void
+      SetDiagonal:
+        args: [{ name: X1, type: Standard_Real }, { name: X2, type: Standard_Real }, { name: X3, type: Standard_Real }]
+        returns: void
+      SetDot:
+        args: [{ name: Ref, type: gp_XYZ }]
+        returns: void
+      SetIdentity:
+        returns: void
+      SetRotation:
+        args: [{ name: Axis, type: gp_XYZ }, { name: Ang, type: Standard_Real }]
+        returns: void
+      SetRow:
+        args: [{ name: Row, type: Standard_Integer }, { name: Value, type: gp_XYZ }]
+        returns: void
+      SetRows:
+        args: [{ name: Row1, type: gp_XYZ }, { name: Row2, type: gp_XYZ }, { name: Row3, type: gp_XYZ }]
+        returns: void
+      SetScale:
+        args: [{ name: S, type: Standard_Real }]
+        returns: void
+      SetValue:
+        args: [{ name: Row, type: Standard_Integer }, { name: Col, type: Standard_Integer }, { name: Value, type: Standard_Real }]
+        returns: void
+      Column:
+        args: [{ name: Col, type: Standard_Integer }]
+        returns: gp_XYZ
+        const: true
+      Determinant:
+        const: true
+        returns: Standard_Real
+      Diagonal:
+        const: true
+        returns: gp_XYZ
+      Row:
+        args: [{ name: Row, type: Standard_Integer }]
+        returns: gp_XYZ
+        const: true
+      Value:
+        args: [{ name: Row, type: Standard_Integer }, { name: Col, type: Standard_Integer }]
+        returns: Standard_Real
+        const: true
+      IsSingular:
+        const: true
+        returns: Standard_Boolean
+      Add:
+        args: [{ name: Other, type: gp_Mat }]
+        returns: void
+      Added:
+        args: [{ name: Other, type: gp_Mat }]
+        returns: gp_Mat
+        const: true
+      Subtract:
+        args: [{ name: Other, type: gp_Mat }]
+        returns: void
+      Subtracted:
+        args: [{ name: Other, type: gp_Mat }]
+        returns: gp_Mat
+        const: true
+      Multiply:
+        overloads:
+          - suffix: _Scalar
+            args: [{ name: Scalar, type: Standard_Real }]
+          - suffix: _Mat
+            args: [{ name: Other, type: gp_Mat }]
+        returns: void
+      Multiplied:
+        overloads:
+          - suffix: _Scalar
+            args: [{ name: Scalar, type: Standard_Real }]
+            returns: gp_Mat
+          - suffix: _Mat
+            args: [{ name: Other, type: gp_Mat }]
+            returns: gp_Mat
+        const: true
+      Divide:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: void
+      Divided:
+        args: [{ name: Scalar, type: Standard_Real }]
+        returns: gp_Mat
+        const: true
+      Invert:
+        returns: void
+      Inverted:
+        returns: gp_Mat
+        const: true
+      PreMultiply:
+        args: [{ name: Other, type: gp_Mat }]
+        returns: void
+      Power:
+        args: [{ name: N, type: Standard_Integer }]
+        returns: void
+      Powered:
+        args: [{ name: N, type: Standard_Integer }]
+        returns: gp_Mat
+        const: true
+      Transpose:
+        returns: void
+      Transposed:
+        returns: gp_Mat
+        const: true
+    skip: [ChangeValue]
+
+  gp_Quaternion:
+    include: gp_Quaternion.hxx
+    constructors:
+      - args: []
+      - args: [{ name: x, type: Standard_Real }, { name: y, type: Standard_Real }, { name: z, type: Standard_Real }, { name: w, type: Standard_Real }]
+      - args: [{ name: theVecFrom, type: gp_Vec }, { name: theVecTo, type: gp_Vec }]
+        factory: FromVecs
+      - args: [{ name: theMat, type: gp_Mat }]
+    methods:
+      SetRotation:
+        overloads:
+          - suffix: _VecAng
+            args: [{ name: theAxis, type: gp_Vec }, { name: theAngle, type: Standard_Real }]
+          - suffix: _VecVec
+            args: [{ name: theVecFrom, type: gp_Vec }, { name: theVecTo, type: gp_Vec }]
+        returns: void
+      SetVectorAndAngle:
+        args: [{ name: theAxis, type: gp_Vec }, { name: theAngle, type: Standard_Real }]
+        returns: void
+      SetMatrix:
+        args: [{ name: theMat, type: gp_Mat }]
+        returns: void
+      GetMatrix:
+        const: true
+        returns: gp_Mat
+      SetEulerAngles:
+        args: [{ name: theOrder, type: gp_EulerSequence }, { name: theAlpha, type: Standard_Real }, { name: theBeta, type: Standard_Real }, { name: theGamma, type: Standard_Real }]
+        returns: void
+      Set:
+        overloads:
+          - suffix: _XYZW
+            args: [{ name: x, type: Standard_Real }, { name: y, type: Standard_Real }, { name: z, type: Standard_Real }, { name: w, type: Standard_Real }]
+        returns: void
+      X:
+        const: true
+        returns: Standard_Real
+      Y:
+        const: true
+        returns: Standard_Real
+      Z:
+        const: true
+        returns: Standard_Real
+      W:
+        const: true
+        returns: Standard_Real
+      SetIdent:
+        returns: void
+      Reverse:
+        returns: void
+      Reversed:
+        returns: gp_Quaternion
+        const: true
+      Invert:
+        returns: void
+      Inverted:
+        returns: gp_Quaternion
+        const: true
+      SquareNorm:
+        const: true
+        returns: Standard_Real
+      Norm:
+        const: true
+        returns: Standard_Real
+      Scale:
+        args: [{ name: theScale, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: theScale, type: Standard_Real }]
+        returns: gp_Quaternion
+        const: true
+      StabilizeLength:
+        returns: void
+      Normalize:
+        returns: void
+      Normalized:
+        returns: gp_Quaternion
+        const: true
+      Negated:
+        returns: gp_Quaternion
+        const: true
+      Added:
+        args: [{ name: Other, type: gp_Quaternion }]
+        returns: gp_Quaternion
+        const: true
+      Subtracted:
+        args: [{ name: Other, type: gp_Quaternion }]
+        returns: gp_Quaternion
+        const: true
+      Multiplied:
+        overloads:
+          - suffix: _Quat
+            args: [{ name: Other, type: gp_Quaternion }]
+            returns: gp_Quaternion
+          - suffix: _Scalar
+            args: [{ name: theScale, type: Standard_Real }]
+            returns: gp_Quaternion
+        const: true
+      Multiply:
+        overloads:
+          - suffix: _Quat
+            args: [{ name: Other, type: gp_Quaternion }]
+          - suffix: _Vec
+            args: [{ name: theVec, type: gp_Vec }]
+            returns: gp_Vec
+        returns: void
+      Add:
+        args: [{ name: Other, type: gp_Quaternion }]
+        returns: void
+      Subtract:
+        args: [{ name: Other, type: gp_Quaternion }]
+        returns: void
+      Dot:
+        args: [{ name: Other, type: gp_Quaternion }]
+        returns: Standard_Real
+        const: true
+    skip: [GetVectorAndAngle, GetEulerAngles]
+
+  gp_Lin:
+    include: gp_Lin.hxx
+    constructors:
+      - args: []
+      - args: [{ name: A1, type: gp_Ax1 }]
+      - args: [{ name: P, type: gp_Pnt }, { name: V, type: gp_Dir }]
+    methods:
+      Reverse:
+        returns: void
+      Reversed:
+        returns: gp_Lin
+        const: true
+      SetDirection:
+        args: [{ name: V, type: gp_Dir }]
+        returns: void
+      SetLocation:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: void
+      SetPosition:
+        args: [{ name: A1, type: gp_Ax1 }]
+        returns: void
+      Direction:
+        const: true
+        returns: gp_Dir
+      Location:
+        const: true
+        returns: gp_Pnt
+      Position:
+        const: true
+        returns: gp_Ax1
+      Angle:
+        args: [{ name: Other, type: gp_Lin }]
+        returns: Standard_Real
+        const: true
+      Contains:
+        args: [{ name: P, type: gp_Pnt }, { name: LinearTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Distance:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Lin
+            args: [{ name: Other, type: gp_Lin }]
+        returns: Standard_Real
+        const: true
+      SquareDistance:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Lin
+            args: [{ name: Other, type: gp_Lin }]
+        returns: Standard_Real
+        const: true
+      Normal:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: gp_Lin
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Lin
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Lin
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Lin
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Lin
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Lin
+        const: true
+
+  gp_Pln:
+    include: gp_Pln.hxx
+    constructors:
+      - args: []
+      - args: [{ name: A, type: gp_Ax3 }]
+      - args: [{ name: P, type: gp_Pnt }, { name: V, type: gp_Dir }]
+      - args: [{ name: A, type: Standard_Real }, { name: B, type: Standard_Real }, { name: C, type: Standard_Real }, { name: D, type: Standard_Real }]
+    methods:
+      SetAxis:
+        args: [{ name: A1, type: gp_Ax1 }]
+        returns: void
+      SetLocation:
+        args: [{ name: Loc, type: gp_Pnt }]
+        returns: void
+      SetPosition:
+        args: [{ name: A3, type: gp_Ax3 }]
+        returns: void
+      UReverse:
+        returns: void
+      VReverse:
+        returns: void
+      Direct:
+        const: true
+        returns: Standard_Boolean
+      Axis:
+        const: true
+        returns: gp_Ax1
+      Location:
+        const: true
+        returns: gp_Pnt
+      Position:
+        const: true
+        returns: gp_Ax3
+      Distance:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Lin
+            args: [{ name: L, type: gp_Lin }]
+          - suffix: _Pln
+            args: [{ name: Other, type: gp_Pln }]
+        returns: Standard_Real
+        const: true
+      SquareDistance:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Lin
+            args: [{ name: L, type: gp_Lin }]
+          - suffix: _Pln
+            args: [{ name: Other, type: gp_Pln }]
+        returns: Standard_Real
+        const: true
+      XAxis:
+        const: true
+        returns: gp_Ax1
+      YAxis:
+        const: true
+        returns: gp_Ax1
+      Contains:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }, { name: LinearTolerance, type: Standard_Real }]
+          - suffix: _Lin
+            args: [{ name: L, type: gp_Lin }, { name: LinearTolerance, type: Standard_Real }, { name: AngularTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Pln
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Pln
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Pln
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Pln
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Pln
+        const: true
+    skip: [Coefficients]
+
+  gp_Circ:
+    include: gp_Circ.hxx
+    constructors:
+      - args: []
+      - args: [{ name: A2, type: gp_Ax2 }, { name: Radius, type: Standard_Real }]
+    methods:
+      SetAxis:
+        args: [{ name: A1, type: gp_Ax1 }]
+        returns: void
+      SetLocation:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: void
+      SetPosition:
+        args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      SetRadius:
+        args: [{ name: R, type: Standard_Real }]
+        returns: void
+      Area:
+        const: true
+        returns: Standard_Real
+      Length:
+        const: true
+        returns: Standard_Real
+      Axis:
+        const: true
+        returns: gp_Ax1
+      Location:
+        const: true
+        returns: gp_Pnt
+      Position:
+        const: true
+        returns: gp_Ax2
+      Radius:
+        const: true
+        returns: Standard_Real
+      XAxis:
+        const: true
+        returns: gp_Ax1
+      YAxis:
+        const: true
+        returns: gp_Ax1
+      Distance:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: Standard_Real
+        const: true
+      SquareDistance:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: Standard_Real
+        const: true
+      Contains:
+        args: [{ name: P, type: gp_Pnt }, { name: LinearTolerance, type: Standard_Real }]
+        returns: Standard_Boolean
+        const: true
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Circ
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Circ
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Circ
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Circ
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Circ
+        const: true
+
+  gp_Elips:
+    include: gp_Elips.hxx
+    constructors:
+      - args: []
+      - args: [{ name: A2, type: gp_Ax2 }, { name: MajorRadius, type: Standard_Real }, { name: MinorRadius, type: Standard_Real }]
+    methods:
+      SetAxis:
+        args: [{ name: A1, type: gp_Ax1 }]
+        returns: void
+      SetLocation:
+        args: [{ name: P, type: gp_Pnt }]
+        returns: void
+      SetMajorRadius:
+        args: [{ name: MajorRadius, type: Standard_Real }]
+        returns: void
+      SetMinorRadius:
+        args: [{ name: MinorRadius, type: Standard_Real }]
+        returns: void
+      SetPosition:
+        args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Area:
+        const: true
+        returns: Standard_Real
+      Eccentricity:
+        const: true
+        returns: Standard_Real
+      Focal:
+        const: true
+        returns: Standard_Real
+      Focus1:
+        const: true
+        returns: gp_Pnt
+      Focus2:
+        const: true
+        returns: gp_Pnt
+      Axis:
+        const: true
+        returns: gp_Ax1
+      Directrix1:
+        const: true
+        returns: gp_Ax1
+      Directrix2:
+        const: true
+        returns: gp_Ax1
+      Location:
+        const: true
+        returns: gp_Pnt
+      MajorRadius:
+        const: true
+        returns: Standard_Real
+      MinorRadius:
+        const: true
+        returns: Standard_Real
+      Parameter:
+        const: true
+        returns: Standard_Real
+      Position:
+        const: true
+        returns: gp_Ax2
+      XAxis:
+        const: true
+        returns: gp_Ax1
+      YAxis:
+        const: true
+        returns: gp_Ax1
+      Mirror:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: void
+      Mirrored:
+        overloads:
+          - suffix: _Pnt
+            args: [{ name: P, type: gp_Pnt }]
+          - suffix: _Ax1
+            args: [{ name: A1, type: gp_Ax1 }]
+          - suffix: _Ax2
+            args: [{ name: A2, type: gp_Ax2 }]
+        returns: gp_Elips
+        const: true
+      Rotate:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: void
+      Rotated:
+        args: [{ name: A1, type: gp_Ax1 }, { name: Ang, type: Standard_Real }]
+        returns: gp_Elips
+        const: true
+      Scale:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: void
+      Scaled:
+        args: [{ name: P, type: gp_Pnt }, { name: S, type: Standard_Real }]
+        returns: gp_Elips
+        const: true
+      Transform:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: void
+      Transformed:
+        args: [{ name: T, type: gp_Trsf }]
+        returns: gp_Elips
+        const: true
+      Translate:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: void
+      Translated:
+        overloads:
+          - suffix: _Vec
+            args: [{ name: V, type: gp_Vec }]
+          - suffix: _PntPnt
+            args: [{ name: P1, type: gp_Pnt }, { name: P2, type: gp_Pnt }]
+        returns: gp_Elips
+        const: true
+
+enums:
+  gp_TrsfForm:
+    include: gp_TrsfForm.hxx
+    values:
+      - gp_Identity
+      - gp_Rotation
+      - gp_Translation
+      - gp_PntMirror
+      - gp_Ax1Mirror
+      - gp_Ax2Mirror
+      - gp_Scale
+      - gp_CompoundTrsf
+      - gp_Other
+
+  gp_EulerSequence:
+    include: gp_EulerSequence.hxx
+    values:
+      - gp_EulerAngles
+      - gp_YawPitchRoll
+      - gp_Extrinsic_XYZ
+      - gp_Extrinsic_XZY
+      - gp_Extrinsic_YZX
+      - gp_Extrinsic_YXZ
+      - gp_Extrinsic_ZXY
+      - gp_Extrinsic_ZYX
+      - gp_Intrinsic_XYZ
+      - gp_Intrinsic_XZY
+      - gp_Intrinsic_YZX
+      - gp_Intrinsic_YXZ
+      - gp_Intrinsic_ZXY
+      - gp_Intrinsic_ZYX

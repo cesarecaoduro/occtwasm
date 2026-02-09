@@ -41,8 +41,8 @@ endif()
 # ---------------------------------------------------------------------------
 # Collect binding sources
 # ---------------------------------------------------------------------------
-file(GLOB GENERATED_SOURCES "${CMAKE_SOURCE_DIR}/bindings/generated/*.cpp")
-file(GLOB MANUAL_SOURCES    "${CMAKE_SOURCE_DIR}/bindings/manual/*.cpp")
+file(GLOB_RECURSE GENERATED_SOURCES "${CMAKE_SOURCE_DIR}/bindings/generated/cpp/*.cpp")
+file(GLOB_RECURSE MANUAL_SOURCES    "${CMAKE_SOURCE_DIR}/bindings/manual/cpp/*.cpp")
 
 set(ALL_SOURCES ${GENERATED_SOURCES} ${MANUAL_SOURCES})
 

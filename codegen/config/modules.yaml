@@ -1,0 +1,7 @@
+modules:
+  TKMath:
+    enabled: true
+    config: TKMath.yaml
+  TKBRep:
+    enabled: true
+    config: TKBRep.yaml

@@ -1,0 +1,434 @@
+module: TKBRep
+
+classes:
+  TopoDS_Shape:
+    include: TopoDS_Shape.hxx
+    constructors:
+      - args: []
+    methods:
+      IsNull:
+        const: true
+        returns: Standard_Boolean
+      Nullify:
+        returns: void
+      Location:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: TopLoc_Location
+          - suffix: _Set
+            args: [{ name: Loc, type: TopLoc_Location }]
+            returns: void
+      Orientation:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: TopAbs_Orientation
+          - suffix: _Set
+            args: [{ name: Orient, type: TopAbs_Orientation }]
+            returns: void
+      ShapeType:
+        const: true
+        returns: TopAbs_ShapeEnum
+      Free:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsFree, type: Standard_Boolean }]
+            returns: void
+      Modified:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsModified, type: Standard_Boolean }]
+            returns: void
+      Checked:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsChecked, type: Standard_Boolean }]
+            returns: void
+      Orientable:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsOrientable, type: Standard_Boolean }]
+            returns: void
+      Closed:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsClosed, type: Standard_Boolean }]
+            returns: void
+      Infinite:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsInfinite, type: Standard_Boolean }]
+            returns: void
+      Convex:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsConvex, type: Standard_Boolean }]
+            returns: void
+      Locked:
+        overloads:
+          - suffix: _Get
+            args: []
+            const: true
+            returns: Standard_Boolean
+          - suffix: _Set
+            args: [{ name: theIsLocked, type: Standard_Boolean }]
+            returns: void
+      Moved:
+        args: [{ name: Loc, type: TopLoc_Location }]
+        returns: TopoDS_Shape
+        const: true
+      Oriented:
+        args: [{ name: Orient, type: TopAbs_Orientation }]
+        returns: TopoDS_Shape
+        const: true
+      Reversed:
+        returns: TopoDS_Shape
+        const: true
+      Complemented:
+        returns: TopoDS_Shape
+        const: true
+      Compose:
+        args: [{ name: Orient, type: TopAbs_Orientation }]
+        returns: void
+      Composed:
+        args: [{ name: Orient, type: TopAbs_Orientation }]
+        returns: TopoDS_Shape
+        const: true
+      NbChildren:
+        const: true
+        returns: Standard_Integer
+      IsPartner:
+        args: [{ name: Other, type: TopoDS_Shape }]
+        returns: Standard_Boolean
+        const: true
+      IsSame:
+        args: [{ name: Other, type: TopoDS_Shape }]
+        returns: Standard_Boolean
+        const: true
+      IsEqual:
+        args: [{ name: Other, type: TopoDS_Shape }]
+        returns: Standard_Boolean
+        const: true
+      IsNotEqual:
+        args: [{ name: Other, type: TopoDS_Shape }]
+        returns: Standard_Boolean
+        const: true
+      Reverse:
+        returns: void
+      Complement:
+        returns: void
+      Move:
+        args: [{ name: Loc, type: TopLoc_Location }]
+        returns: void
+      Orient:
+        args: [{ name: Orient, type: TopAbs_Orientation }]
+        returns: void
+      EmptyCopy:
+        returns: void
+      EmptyCopied:
+        returns: TopoDS_Shape
+        const: true
+    skip: [TShape, HashCode]
+
+  TopoDS_Vertex:
+    include: TopoDS_Vertex.hxx
+    constructors:
+      - args: []
+    methods: {}
+
+  TopoDS_Edge:
+    include: TopoDS_Edge.hxx
+    constructors:
+      - args: []
+    methods: {}
+
+  TopoDS_Wire:
+    include: TopoDS_Wire.hxx
+    constructors:
+      - args: []
+    methods: {}
+
+  TopoDS_Face:
+    include: TopoDS_Face.hxx
+    constructors:
+      - args: []
+    methods: {}
+
+  TopoDS_Shell:
+    include: TopoDS_Shell.hxx
+    constructors:
+      - args: []
+    methods: {}
+
+  TopoDS_Solid:
+    include: TopoDS_Solid.hxx
+    constructors:
+      - args: []
+    methods: {}
+
+  TopoDS_Compound:
+    include: TopoDS_Compound.hxx
+    constructors:
+      - args: []
+    methods: {}
+
+  TopoDS_Builder:
+    include: TopoDS_Builder.hxx
+    constructors:
+      - args: []
+    methods:
+      MakeWire:
+        args: [{ name: W, type: TopoDS_Wire }]
+        output_args: true
+        returns: TopoDS_Wire
+      MakeShell:
+        args: [{ name: Sh, type: TopoDS_Shell }]
+        output_args: true
+        returns: TopoDS_Shell
+      MakeSolid:
+        args: [{ name: S, type: TopoDS_Solid }]
+        output_args: true
+        returns: TopoDS_Solid
+      MakeCompound:
+        args: [{ name: C, type: TopoDS_Compound }]
+        output_args: true
+        returns: TopoDS_Compound
+      Add:
+        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        returns: void
+      Remove:
+        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        returns: void
+
+  TopoDS_Iterator:
+    include: TopoDS_Iterator.hxx
+    constructors:
+      - args: []
+      - args: [{ name: S, type: TopoDS_Shape }, { name: cumOri, type: Standard_Boolean }, { name: cumLoc, type: Standard_Boolean }]
+    methods:
+      Initialize:
+        args: [{ name: S, type: TopoDS_Shape }, { name: cumOri, type: Standard_Boolean }, { name: cumLoc, type: Standard_Boolean }]
+        returns: void
+      More:
+        const: true
+        returns: Standard_Boolean
+      Next:
+        returns: void
+      Value:
+        const: true
+        returns: TopoDS_Shape
+
+  TopExp_Explorer:
+    include: TopExp_Explorer.hxx
+    constructors:
+      - args: []
+      - args: [{ name: S, type: TopoDS_Shape }, { name: ToFind, type: TopAbs_ShapeEnum }, { name: ToAvoid, type: TopAbs_ShapeEnum }]
+    methods:
+      Init:
+        args: [{ name: S, type: TopoDS_Shape }, { name: ToFind, type: TopAbs_ShapeEnum }, { name: ToAvoid, type: TopAbs_ShapeEnum }]
+        returns: void
+      More:
+        const: true
+        returns: Standard_Boolean
+      Next:
+        returns: void
+      Value:
+        const: true
+        returns: TopoDS_Shape
+      Current:
+        const: true
+        returns: TopoDS_Shape
+      ReInit:
+        returns: void
+      ExploredShape:
+        const: true
+        returns: TopoDS_Shape
+      Depth:
+        const: true
+        returns: Standard_Integer
+      Clear:
+        returns: void
+
+  BRep_Builder:
+    include: BRep_Builder.hxx
+    constructors:
+      - args: []
+    methods:
+      MakeVertex:
+        overloads:
+          - suffix: _Empty
+            args: [{ name: V, type: TopoDS_Vertex }]
+            output_args: true
+            returns: TopoDS_Vertex
+          - suffix: _WithPnt
+            args: [{ name: V, type: TopoDS_Vertex }, { name: P, type: gp_Pnt }, { name: Tol, type: Standard_Real }]
+            output_args: true
+            returns: TopoDS_Vertex
+      MakeEdge:
+        overloads:
+          - suffix: _Empty
+            args: [{ name: E, type: TopoDS_Edge }]
+            output_args: true
+            returns: TopoDS_Edge
+      MakeFace:
+        overloads:
+          - suffix: _Empty
+            args: [{ name: F, type: TopoDS_Face }]
+            output_args: true
+            returns: TopoDS_Face
+      MakeWire:
+        args: [{ name: W, type: TopoDS_Wire }]
+        output_args: true
+        returns: TopoDS_Wire
+      MakeShell:
+        args: [{ name: Sh, type: TopoDS_Shell }]
+        output_args: true
+        returns: TopoDS_Shell
+      MakeSolid:
+        args: [{ name: S, type: TopoDS_Solid }]
+        output_args: true
+        returns: TopoDS_Solid
+      MakeCompound:
+        args: [{ name: C, type: TopoDS_Compound }]
+        output_args: true
+        returns: TopoDS_Compound
+      Add:
+        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        returns: void
+      Remove:
+        args: [{ name: S, type: TopoDS_Shape }, { name: C, type: TopoDS_Shape }]
+        returns: void
+      UpdateVertex:
+        overloads:
+          - suffix: _Tol
+            args: [{ name: V, type: TopoDS_Vertex }, { name: Tol, type: Standard_Real }]
+          - suffix: _PntTol
+            args: [{ name: V, type: TopoDS_Vertex }, { name: P, type: gp_Pnt }, { name: Tol, type: Standard_Real }]
+        returns: void
+      Degenerated:
+        args: [{ name: E, type: TopoDS_Edge }, { name: D, type: Standard_Boolean }]
+        returns: void
+      Range:
+        args: [{ name: E, type: TopoDS_Edge }, { name: First, type: Standard_Real }, { name: Last, type: Standard_Real }]
+        returns: void
+      SameParameter:
+        args: [{ name: E, type: TopoDS_Edge }, { name: S, type: Standard_Boolean }]
+        returns: void
+      SameRange:
+        args: [{ name: E, type: TopoDS_Edge }, { name: S, type: Standard_Boolean }]
+        returns: void
+      NaturalRestriction:
+        args: [{ name: F, type: TopoDS_Face }, { name: N, type: Standard_Boolean }]
+        returns: void
+
+  BRep_Tool:
+    include: BRep_Tool.hxx
+    constructors: []
+    methods:
+      IsClosed:
+        args: [{ name: E, type: TopoDS_Edge }]
+        static: true
+        returns: Standard_Boolean
+      Tolerance:
+        overloads:
+          - suffix: _Face
+            args: [{ name: F, type: TopoDS_Face }]
+            static: true
+          - suffix: _Edge
+            args: [{ name: E, type: TopoDS_Edge }]
+            static: true
+          - suffix: _Vertex
+            args: [{ name: V, type: TopoDS_Vertex }]
+            static: true
+        returns: Standard_Real
+      Pnt:
+        args: [{ name: V, type: TopoDS_Vertex }]
+        static: true
+        returns: gp_Pnt
+      Degenerated:
+        args: [{ name: E, type: TopoDS_Edge }]
+        static: true
+        returns: Standard_Boolean
+      SameParameter:
+        args: [{ name: E, type: TopoDS_Edge }]
+        static: true
+        returns: Standard_Boolean
+      SameRange:
+        args: [{ name: E, type: TopoDS_Edge }]
+        static: true
+        returns: Standard_Boolean
+      MaxTolerance:
+        args: [{ name: S, type: TopoDS_Shape }, { name: SubShape, type: TopAbs_ShapeEnum }]
+        static: true
+        returns: Standard_Real
+      IsGeometric:
+        overloads:
+          - suffix: _Edge
+            args: [{ name: E, type: TopoDS_Edge }]
+            static: true
+          - suffix: _Face
+            args: [{ name: F, type: TopoDS_Face }]
+            static: true
+        returns: Standard_Boolean
+    skip: [Surface, Curve, Triangulation, Triangulations, UVBox, ChangeUVBox, Parameter, Parameters]
+
+enums:
+  TopAbs_ShapeEnum:
+    include: TopAbs_ShapeEnum.hxx
+    values:
+      - TopAbs_COMPOUND
+      - TopAbs_COMPSOLID
+      - TopAbs_SOLID
+      - TopAbs_SHELL
+      - TopAbs_FACE
+      - TopAbs_WIRE
+      - TopAbs_EDGE
+      - TopAbs_VERTEX
+      - TopAbs_SHAPE
+
+  TopAbs_Orientation:
+    include: TopAbs_Orientation.hxx
+    values:
+      - TopAbs_FORWARD
+      - TopAbs_REVERSED
+      - TopAbs_INTERNAL
+      - TopAbs_EXTERNAL
+
+  TopAbs_State:
+    include: TopAbs_State.hxx
+    values:
+      - TopAbs_IN
+      - TopAbs_OUT
+      - TopAbs_ON
+      - TopAbs_UNKNOWN
