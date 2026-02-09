@@ -64,6 +64,10 @@ A Three.js-powered 3D viewer demonstrates the library interactively using Vite a
 - Loft Solid (closed wires)
 - Wire Intersection (real intersection points)
 
+![Viewer Basics](docs/images/viewer-basics.png)
+![Loft Surface Preview](docs/images/viewer-loft.png)
+![View Code Dialog](docs/images/viewer-code.png)
+
 ```bash
 cd examples/viewer
 pnpm install

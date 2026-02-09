@@ -138,6 +138,7 @@ function applySolidSettings() {
 // -- Demos --
 const demos = [
   {
+    group: "Basics",
     label: "Edge (Line)",
     code: `import { initOCCT, gp_Pnt, BRepBuilderAPI_MakeEdge, edgeLength } from '@cesarecaoduro/occtwasm-core';
 await initOCCT();
@@ -168,6 +169,7 @@ edge.delete(); maker.delete(); p1.delete(); p2.delete();`,
     },
   },
   {
+    group: "Basics",
     label: "Arc (3 Points)",
     code: `import { initOCCT, gp_Pnt, makeArcEdge3d, edgeLength } from '@cesarecaoduro/occtwasm-core';
 await initOCCT();
@@ -198,6 +200,7 @@ arc.delete(); p1.delete(); p2.delete(); p3.delete();`,
     },
   },
   {
+    group: "Basics",
     label: "Polyline",
     code: `import { initOCCT, gp_Pnt, BRepBuilderAPI_MakePolygon, wireLength } from '@cesarecaoduro/occtwasm-core';
 await initOCCT();
@@ -240,6 +243,7 @@ wire.delete(); maker.delete();
     },
   },
   {
+    group: "Wires",
     label: "Wire (Line+Arc+Line)",
     code: `import { initOCCT, gp_Pnt, BRepBuilderAPI_MakeEdge,
   BRepBuilderAPI_MakeWire, makeArcEdge3d, wireLength } from '@cesarecaoduro/occtwasm-core';
@@ -291,6 +295,7 @@ console.log(wireLength(wire)); // ~35.71`,
     },
   },
   {
+    group: "Loft",
     label: "Loft Surface (Open Wires)",
     code: `import { initOCCT, gp_Pnt, BRepBuilderAPI_MakePolygon,
   BRepOffsetAPI_ThruSections } from '@cesarecaoduro/occtwasm-core';
@@ -370,6 +375,7 @@ loft.Build();`,
     },
   },
   {
+    group: "Loft",
     label: "Loft Solid (Closed Wires)",
     code: `import { initOCCT, gp_Pnt, BRepBuilderAPI_MakePolygon,
   BRepOffsetAPI_ThruSections, volumeProperties } from '@cesarecaoduro/occtwasm-core';
@@ -456,6 +462,7 @@ console.log(props.Mass()); // 1000 (10x10x10 box)`,
     },
   },
   {
+    group: "Boolean",
     label: "Intersection",
     code: `import { initOCCT, gp_Pnt, BRepBuilderAPI_MakeEdge,
   BRepBuilderAPI_MakeWire, BRepAlgoAPI_Section,
@@ -593,17 +600,39 @@ async function main() {
     currentDispose = demos[i].create(scene);
     currentIndex = i;
     document
-      .querySelectorAll(".demo-btn")
-      .forEach((b, j) => b.classList.toggle("active", j === i));
+      .querySelectorAll(".demo-item")
+      .forEach((b) => b.classList.toggle("active", Number(b.dataset.index) === i));
   };
-  const bc = document.getElementById("demo-buttons");
-  demos.forEach((d, i) => {
-    const b = document.createElement("button");
-    b.className = "demo-btn";
-    b.textContent = d.label;
-    b.onclick = () => loadDemo(i);
-    bc.appendChild(b);
+
+  const demoList = document.getElementById("demo-list");
+  const groups = demos.reduce((acc, demo, index) => {
+    const key = demo.group || "Other";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push({ demo, index });
+    return acc;
+  }, {});
+  const order = ["Basics", "Wires", "Loft", "Boolean", "Other"];
+  order.forEach((group) => {
+    if (!groups[group]) return;
+    const groupEl = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "demo-group-title";
+    title.textContent = group;
+    const items = document.createElement("ul");
+    items.className = "demo-items";
+    groups[group].forEach(({ demo, index }) => {
+      const item = document.createElement("li");
+      item.className = "demo-item";
+      item.textContent = demo.label;
+      item.dataset.index = String(index);
+      item.onclick = () => loadDemo(index);
+      items.appendChild(item);
+    });
+    groupEl.appendChild(title);
+    groupEl.appendChild(items);
+    demoList.appendChild(groupEl);
   });
+
   loadDemo(0);
 
   const ui = new GUI({ width: 240, title: "Viewer" });
