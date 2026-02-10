@@ -215,4 +215,10 @@ Add to `.npmrc` if needed:
 
 ## License
 
-LGPL-2.1 (same as OCCT)
+LGPL-2.1-only WITH OCCT-exception-1.0 (same as OCCT).
+
+This project does not claim additional rights over Open CASCADE Technology;
+copyright and related rights for OCCT remain with Open CASCADE and its contributors.
+
+Complete corresponding source and build scripts for the distributed WASM
+artifacts are documented in `SOURCE_AVAILABILITY.md`.

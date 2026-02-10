@@ -1,6 +1,6 @@
 {
   "name": "@cesarecaoduro/occtwasm-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "OpenCascade (OCCT) compiled to WebAssembly with TypeScript bindings",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -70,7 +70,9 @@
     "./occt.wasm": "./dist/occt.wasm"
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE",
+    "SOURCE_AVAILABILITY.md"
   ],
   "scripts": {
     "codegen": "tsx codegen/src/codegen.ts",
@@ -99,7 +101,7 @@
     "brep",
     "geometry"
   ],
-  "license": "LGPL-2.1-only",
+  "license": "LGPL-2.1-only WITH OCCT-exception-1.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cesarecaoduro/occtwasm.git"
