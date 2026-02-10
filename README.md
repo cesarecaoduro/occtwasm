@@ -1,3 +1,6 @@
+
+[![Build and Publish](https://github.com/cesarecaoduro/occtwasm/actions/workflows/publish.yml/badge.svg)](https://github.com/cesarecaoduro/occtwasm/actions/workflows/publish.yml)
+
 # occtwasm-core
 
 OpenCascade (OCCT 8.0.0) compiled to WebAssembly with TypeScript bindings.
