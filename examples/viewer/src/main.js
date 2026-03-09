@@ -1072,7 +1072,14 @@ const common = BRepAlgoAPI_Common.Create(box, cyl).Shape();    // intersection`,
 // -- Main --
 async function main() {
   const loadingEl = document.getElementById("loading");
-  await initOCCT();
+  await initOCCT(
+    import.meta.env.PROD
+      ? {
+          wasmJsUrl: new URL("/wasm/occt.js", window.location.origin).href,
+          locateFile: (path) => `/wasm/${path}`,
+        }
+      : undefined,
+  );
   loadingEl.style.display = "none";
 
   const canvas = document.getElementById("viewer");
