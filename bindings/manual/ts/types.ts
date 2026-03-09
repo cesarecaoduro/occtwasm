@@ -40,6 +40,19 @@ interface ManualHelperFunctions {
 
   // --- Mesh helpers (mesh_helpers.cpp) ---
   MeshShape(shape: EmbindHandles.TopoDS_Shape, deflection: number, angle: number): any;
+
+  // --- BSpline helpers (bspline_helpers.cpp) ---
+  MakeBSplineCurveEdge(poles: any, knots: any, mults: any, degree: number): EmbindHandles.TopoDS_Edge;
+  MakeBSplineSurfaceFace(poles: any, uKnots: any, vKnots: any, uMults: any, vMults: any, uDeg: number, vDeg: number, nUPoles: number, nVPoles: number): EmbindHandles.TopoDS_Face;
+
+  // --- Curve info helpers (curve_info_helpers.cpp) ---
+  GetEdgeBSplineInfo(edge: EmbindHandles.TopoDS_Edge): any;
+
+  // --- Export helpers (export_helpers.cpp) ---
+  ExportBRep(shape: EmbindHandles.TopoDS_Shape): string;
+
+  // --- STEP export helpers (step_export_helpers.cpp) ---
+  ExportSTEP(shape: EmbindHandles.TopoDS_Shape): string;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,6 +90,73 @@ export interface BRepOffsetAPIThruSectionsHandle {
   delete(): void;
 }
 
+/** BRepPrimAPI_MakeBox raw handle — bound manually in primitive_helpers.cpp */
+export interface BRepPrimAPIMakeBoxHandle {
+  Build(): void;
+  IsDone(): boolean;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  Solid(): EmbindHandles.TopoDS_Solid;
+  delete(): void;
+}
+
+/** BRepPrimAPI_MakeCylinder raw handle — bound manually in primitive_helpers.cpp */
+export interface BRepPrimAPIMakeCylinderHandle {
+  Build(): void;
+  IsDone(): boolean;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  delete(): void;
+}
+
+/** BRepPrimAPI_MakeSphere raw handle — bound manually in primitive_helpers.cpp */
+export interface BRepPrimAPIMakeSphereHandle {
+  Build(): void;
+  IsDone(): boolean;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  delete(): void;
+}
+
+/** BRepBuilderAPI_MakeFace raw handle — bound manually in face_helpers.cpp */
+export interface BRepBuilderAPIMakeFaceHandle {
+  IsDone(): boolean;
+  Face(): EmbindHandles.TopoDS_Face;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  delete(): void;
+}
+
+/** BRepAlgoAPI_Fuse raw handle — bound manually in boolean_ops_helpers.cpp */
+export interface BRepAlgoAPIFuseHandle {
+  Build(): void;
+  IsDone(): boolean;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  delete(): void;
+}
+
+/** BRepAlgoAPI_Cut raw handle — bound manually in boolean_ops_helpers.cpp */
+export interface BRepAlgoAPICutHandle {
+  Build(): void;
+  IsDone(): boolean;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  delete(): void;
+}
+
+/** BRepAlgoAPI_Common raw handle — bound manually in boolean_ops_helpers.cpp */
+export interface BRepAlgoAPICommonHandle {
+  Build(): void;
+  IsDone(): boolean;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  delete(): void;
+}
+
+/** BRepOffsetAPI_MakePipe raw handle — bound manually in pipe_helpers.cpp */
+export interface BRepOffsetAPIMakePipeHandle {
+  Build(): void;
+  IsDone(): boolean;
+  Shape(): EmbindHandles.TopoDS_Shape;
+  FirstShape(): EmbindHandles.TopoDS_Shape;
+  LastShape(): EmbindHandles.TopoDS_Shape;
+  delete(): void;
+}
+
 interface ManualEmbindClasses {
   GProp_GProps: { new(): GPropGPropsHandle };
   BRepAlgoAPI_Section: {
@@ -85,6 +165,34 @@ interface ManualEmbindClasses {
   };
   BRepOffsetAPI_ThruSections: {
     new(isSolid: boolean, isRuled: boolean): BRepOffsetAPIThruSectionsHandle;
+  };
+  BRepPrimAPI_MakeBox: {
+    FromCornerAndSize(p: EmbindHandles.gp_Pnt, dx: number, dy: number, dz: number): BRepPrimAPIMakeBoxHandle;
+    FromTwoCorners(p1: EmbindHandles.gp_Pnt, p2: EmbindHandles.gp_Pnt): BRepPrimAPIMakeBoxHandle;
+  };
+  BRepPrimAPI_MakeCylinder: {
+    FromAx2(axes: EmbindHandles.gp_Ax2, R: number, H: number): BRepPrimAPIMakeCylinderHandle;
+    FromAx2Angle(axes: EmbindHandles.gp_Ax2, R: number, H: number, angle: number): BRepPrimAPIMakeCylinderHandle;
+  };
+  BRepPrimAPI_MakeSphere: {
+    FromCenterRadius(center: EmbindHandles.gp_Pnt, R: number): BRepPrimAPIMakeSphereHandle;
+  };
+  BRepBuilderAPI_MakeFace: {
+    FromWire(wire: EmbindHandles.TopoDS_Wire, onlyPlane: boolean): BRepBuilderAPIMakeFaceHandle;
+    FromPlane(pln: EmbindHandles.gp_Pln): BRepBuilderAPIMakeFaceHandle;
+    FromPlaneAndBounds(pln: EmbindHandles.gp_Pln, uMin: number, uMax: number, vMin: number, vMax: number): BRepBuilderAPIMakeFaceHandle;
+  };
+  BRepAlgoAPI_Fuse: {
+    Create(s1: EmbindHandles.TopoDS_Shape, s2: EmbindHandles.TopoDS_Shape): BRepAlgoAPIFuseHandle;
+  };
+  BRepAlgoAPI_Cut: {
+    Create(s1: EmbindHandles.TopoDS_Shape, s2: EmbindHandles.TopoDS_Shape): BRepAlgoAPICutHandle;
+  };
+  BRepAlgoAPI_Common: {
+    Create(s1: EmbindHandles.TopoDS_Shape, s2: EmbindHandles.TopoDS_Shape): BRepAlgoAPICommonHandle;
+  };
+  BRepOffsetAPI_MakePipe: {
+    new(spine: EmbindHandles.TopoDS_Wire, profile: EmbindHandles.TopoDS_Shape): BRepOffsetAPIMakePipeHandle;
   };
 }
 

@@ -28,6 +28,27 @@ C++ OCCT Libraries (.a)
 2. Virtual methods (`Shape()`, `Build()`, `IsDone()` are virtual and skipped by the parser)
 3. Abstract base classes (e.g. `GCPnts_AbscissaPoint` takes `Adaptor3d_Curve&`)
 
+## Features
+
+### Primitives & Shapes
+- **Box, Cylinder, Sphere** via `BRepPrimAPI_MakeBox`, `BRepPrimAPI_MakeCylinder`, `BRepPrimAPI_MakeSphere`
+- **Face from wire** via `BRepBuilderAPI_MakeFace`
+
+### BSpline Geometry
+- **BSpline curves** — create edges from control poles, knots, multiplicities, and degree
+- **BSpline surfaces** — create faces from a 2D control grid
+- **Curve introspection** — extract degree, poles, knots, weights, and rational/periodic flags from intersection result edges via `getEdgeBSplineInfo()`
+
+### Modeling Operations
+- **Lofting** — `BRepOffsetAPI_ThruSections` for surface/solid lofts through multiple profiles
+- **Pipe sweep** — `BRepOffsetAPI_MakePipe` for sweeping a profile along a spine wire
+- **Boolean operations** — `BRepAlgoAPI_Fuse`, `BRepAlgoAPI_Cut`, `BRepAlgoAPI_Common`
+- **Surface intersection** — `BRepAlgoAPI_Section` producing exact NURBS intersection curves
+
+### Export
+- **BREP export** — `exportBRep()` returns BREP string data
+- **STEP export** — `exportSTEP()` returns STEP AP214 string data (requires OCCT built with DataExchange module)
+
 ## Quick Start
 
 ```ts
@@ -59,13 +80,18 @@ console.log(wireLength(wire.Wire())); // ~41.42
 A Three.js-powered 3D viewer demonstrates the library interactively using Vite and lil-gui. It renders points and wires directly from OCCT shapes and also triangulates surfaces/solids for shaded previews.
 
 **Demos included:**
-- Edge (line)
-- Arc (3-point)
-- Polyline
-- Wire (line + arc + line)
-- Loft Surface (open wires)
-- Loft Solid (closed wires)
-- Wire Intersection (real intersection points)
+
+| Group | Demo | Description |
+|-------|------|-------------|
+| Basics | Edge, Arc, Polyline, Wire | Core wire-frame geometry primitives |
+| Wires | Wire Intersection | Compute real intersection points between wires |
+| Loft | Loft Surface / Loft Solid | Lofting through open or closed wire profiles |
+| Loft | Multi-Section Loft | Loft through 4 different cross-sections (square, octagon, etc.) |
+| Sweep | AASHTO BT-72 Girder | Prestressed concrete girder swept along a parabolic pre-camber spine |
+| Surfaces | NURBS Surface Intersection | Dome vs. saddle intersection producing true BSpline curves with control polygon display |
+| Boolean | Boolean Operations | Union, difference, and intersection of box/cylinder/sphere primitives |
+
+All solid/BREP demos include **Export BREP** and **Export STEP** download buttons.
 
 ![Viewer Basics](docs/images/viewer-basics.png)
 ![Loft Surface Preview](docs/images/viewer-loft.png)
@@ -170,8 +196,16 @@ bindings/
       curve_measure_helpers.cpp  #   Edge/wire length, point at length
       gprop_helpers.cpp          #   GProp_GProps + BRepGProp properties
       boolean_helpers.cpp        #   BRepAlgoAPI_Section (wire intersection)
+      boolean_ops_helpers.cpp    #   BRepAlgoAPI_Fuse, Cut, Common
       loft_helpers.cpp           #   BRepOffsetAPI_ThruSections (lofting)
+      pipe_helpers.cpp           #   BRepOffsetAPI_MakePipe (sweep)
+      primitive_helpers.cpp      #   BRepPrimAPI_MakeBox, MakeCylinder, MakeSphere
+      face_helpers.cpp           #   BRepBuilderAPI_MakeFace
+      bspline_helpers.cpp        #   BSpline curve/surface factory functions
+      curve_info_helpers.cpp     #   Extract BSpline curve data from edges
       mesh_helpers.cpp           #   Triangulation for rendering (MeshShape)
+      export_helpers.cpp         #   BREP export to string
+      step_export_helpers.cpp    #   STEP export to string
     ts/
       types.ts                   #   OcctModule interface, InitOptions
       module-loader.ts           #   Async initOCCT() singleton WASM loader
@@ -185,19 +219,29 @@ build/                           # Build artefacts (gitignored)
 
 ## Manual C++ Helpers
 
-- Arc creation: `MakeArcEdge3d`, `MakeArcEdge2d`
-- Curve measurement: `EdgeLength`, `WireLength`, `PointAtLengthOnEdge`, `PointAtLengthOnWire`
-- Global properties: `BRepGProp_*` + `GProp_GProps`
-- Boolean operations: `BRepAlgoAPI_Section`
-- Lofting: `BRepOffsetAPI_ThruSections`
-- Cast helpers: `TopoDS_ToVertex`, `TopoDS_ToEdge`, `TopoDS_ToWire`, etc.
-- Meshing: `MeshShape` (triangulation for rendering)
+- **Arc creation**: `MakeArcEdge3d`, `MakeArcEdge2d`
+- **Curve measurement**: `EdgeLength`, `WireLength`, `PointAtLengthOnEdge`, `PointAtLengthOnWire`
+- **Global properties**: `BRepGProp_*` + `GProp_GProps`
+- **Wire intersection**: `BRepAlgoAPI_Section`
+- **Lofting**: `BRepOffsetAPI_ThruSections`
+- **Pipe sweep**: `BRepOffsetAPI_MakePipe`
+- **Primitives**: `BRepPrimAPI_MakeBox`, `MakeCylinder`, `MakeSphere`
+- **Face creation**: `BRepBuilderAPI_MakeFace`
+- **Boolean ops**: `BRepAlgoAPI_Fuse`, `BRepAlgoAPI_Cut`, `BRepAlgoAPI_Common`
+- **BSpline factories**: `MakeBSplineCurveEdge`, `MakeBSplineSurfaceFace`
+- **Curve introspection**: `GetEdgeBSplineInfo` (extract NURBS curve data from edges)
+- **Cast helpers**: `TopoDS_ToVertex`, `TopoDS_ToEdge`, `TopoDS_ToWire`, `TopoDS_ToFace`
+- **Meshing**: `MeshShape` (triangulation for rendering)
+- **Export**: `ExportBRep`, `ExportSTEP`
 
 ## OCCT Libraries Linked
 
 ```
-TKOffset > TKBO > TKBool > TKShHealing > TKTopAlgo > TKGeomAlgo > TKMesh >
-TKBRep > TKGeomBase > TKG3d > TKG2d > TKMath > TKernel
+Modeling:      TKOffset > TKBO > TKBool > TKShHealing > TKTopAlgo > TKGeomAlgo > TKMesh > TKPrim
+               TKBRep > TKGeomBase > TKG3d > TKG2d > TKMath > TKernel
+DataExchange:  TKDESTEP > TKDEIGES > TKXSBase > TKDE
+AppFramework:  TKXCAF > TKVCAF > TKCAF > TKLCAF > TKCDF
+Visualization: TKV3d > TKService
 ```
 
 ## CI / Publishing

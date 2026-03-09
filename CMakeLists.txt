@@ -76,12 +76,25 @@ target_include_directories(occt PRIVATE "${OCCT_INCLUDE_DIR}")
 #   TKernel     -> Kernel / foundation
 # ---------------------------------------------------------------------------
 set(OCCT_TOOLKIT_NAMES
+    TKDESTEP
+    TKDEIGES
+    TKXSBase
+    TKDE
+    TKXCAF
+    TKVCAF
+    TKCAF
+    TKLCAF
+    TKCDF
+    TKV3d
+    TKService
     TKOffset
+    TKPrim
     TKBO
     TKBool
     TKShHealing
     TKTopAlgo
     TKGeomAlgo
+    TKMesh
     TKBRep
     TKGeomBase
     TKG3d
@@ -121,7 +134,7 @@ target_link_options(occt PRIVATE
     "SHELL:-s EXPORT_NAME=\"createOCCTModule\""
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"
     "SHELL:-s ENVIRONMENT='web,node'"
-    "SHELL:-s FILESYSTEM=0"
+    "SHELL:-s FILESYSTEM=1"
 )
 
 # ---------------------------------------------------------------------------

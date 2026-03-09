@@ -72,11 +72,11 @@ emcmake cmake "${OCCT_SOURCE}" \
     -DBUILD_MODULE_FoundationClasses=ON \
     -DBUILD_MODULE_ModelingData=ON \
     -DBUILD_MODULE_ModelingAlgorithms=ON \
+    -DBUILD_MODULE_DataExchange=ON \
+    -DBUILD_MODULE_ApplicationFramework=ON \
+    -DBUILD_MODULE_Visualization=ON \
     \
     -DBUILD_MODULE_Draw=OFF \
-    -DBUILD_MODULE_Visualization=OFF \
-    -DBUILD_MODULE_ApplicationFramework=OFF \
-    -DBUILD_MODULE_DataExchange=OFF \
     -DBUILD_MODULE_DETools=OFF \
     \
     -DUSE_FREETYPE=OFF \

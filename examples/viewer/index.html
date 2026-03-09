@@ -129,6 +129,62 @@
       color: var(--accent);
       letter-spacing: 0.6px;
     }
+    #export-step {
+      position: absolute;
+      right: 280px;
+      bottom: 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid #e0dbd2;
+      background: rgba(255, 255, 255, 0.82);
+      color: #2b2f2d;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 16px 40px rgba(12, 13, 12, 0.12);
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+      z-index: 5;
+    }
+    #export-step svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+    #export-step:hover {
+      transform: translateY(-1px);
+      border-color: #c9c4b8;
+      background: rgba(255, 255, 255, 0.96);
+    }
+    #export-brep {
+      position: absolute;
+      right: 152px;
+      bottom: 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid #e0dbd2;
+      background: rgba(255, 255, 255, 0.82);
+      color: #2b2f2d;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 16px 40px rgba(12, 13, 12, 0.12);
+      transition: transform 0.15s, border-color 0.15s, background 0.15s;
+      z-index: 5;
+    }
+    #export-brep svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+    #export-brep:hover {
+      transform: translateY(-1px);
+      border-color: #c9c4b8;
+      background: rgba(255, 255, 255, 0.96);
+    }
     #view-code {
       position: absolute;
       right: 22px;
@@ -232,6 +288,22 @@
   <div id="viewer-container">
     <div id="loading">Loading WASM...</div>
     <canvas id="viewer"></canvas>
+    <button type="button" id="export-step" aria-label="Export STEP" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      Export .step
+    </button>
+    <button type="button" id="export-brep" aria-label="Export BREP" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      Export .brep
+    </button>
     <button type="button" id="view-code" aria-label="View code">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <path d="M8 9l-4 3 4 3" />

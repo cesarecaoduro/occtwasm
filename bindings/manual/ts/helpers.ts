@@ -3,10 +3,12 @@
 // TypeScript wrappers for manual C++ embind helper functions.
 // These functions are registered as free functions on the Module object.
 
-import { gp_Mat, gp_Pln, gp_Pnt, gp_Pnt2d } from '../../generated/ts/TKMath.js';
+import { gp_Ax2, gp_Mat, gp_Pln, gp_Pnt, gp_Pnt2d } from '../../generated/ts/TKMath.js';
 import {
   TopoDS_Shape,
   TopoDS_Edge,
+  TopoDS_Face,
+  TopoDS_Solid,
   TopoDS_Wire,
   TopoDS_Vertex,
 } from '../../generated/ts/TKBRep.js';
@@ -39,6 +41,27 @@ export function topoDSToVertex(shape: TopoDS_Shape): TopoDS_Vertex {
   const Module = getOCCTModule();
   const handle = Module.TopoDS_ToVertex(shape._handle);
   return TopoDS_Vertex._fromHandle(handle);
+}
+
+/** Cast a TopoDS_Shape to TopoDS_Edge. */
+export function topoDSToEdge(shape: TopoDS_Shape): TopoDS_Edge {
+  const Module = getOCCTModule();
+  const handle = Module.TopoDS_ToEdge(shape._handle);
+  return TopoDS_Edge._fromHandle(handle);
+}
+
+/** Cast a TopoDS_Shape to TopoDS_Face. */
+export function topoDSToFace(shape: TopoDS_Shape): TopoDS_Face {
+  const Module = getOCCTModule();
+  const handle = Module.TopoDS_ToFace(shape._handle);
+  return TopoDS_Face._fromHandle(handle);
+}
+
+/** Cast a TopoDS_Shape to TopoDS_Wire. */
+export function topoDSToWire(shape: TopoDS_Shape): TopoDS_Wire {
+  const Module = getOCCTModule();
+  const handle = Module.TopoDS_ToWire(shape._handle);
+  return TopoDS_Wire._fromHandle(handle);
 }
 
 // ---------------------------------------------------------------------------
@@ -201,4 +224,300 @@ export class BRepOffsetAPI_ThruSections {
   FirstShape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.FirstShape()); }
   LastShape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.LastShape()); }
   delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepPrimAPI_MakeBox wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepPrimAPI_MakeBox {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepPrimAPI_MakeBox {
+    const obj = Object.create(BRepPrimAPI_MakeBox.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  static FromCornerAndSize(p: gp_Pnt, dx: number, dy: number, dz: number): BRepPrimAPI_MakeBox {
+    const Module = getOCCTModule();
+    const h = Module.BRepPrimAPI_MakeBox.FromCornerAndSize(p._handle, dx, dy, dz);
+    return BRepPrimAPI_MakeBox._fromHandle(h);
+  }
+
+  static FromTwoCorners(p1: gp_Pnt, p2: gp_Pnt): BRepPrimAPI_MakeBox {
+    const Module = getOCCTModule();
+    const h = Module.BRepPrimAPI_MakeBox.FromTwoCorners(p1._handle, p2._handle);
+    return BRepPrimAPI_MakeBox._fromHandle(h);
+  }
+
+  Build(): void { this._handle.Build(); }
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  Solid(): TopoDS_Solid { return TopoDS_Solid._fromHandle(this._handle.Solid()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepPrimAPI_MakeCylinder wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepPrimAPI_MakeCylinder {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepPrimAPI_MakeCylinder {
+    const obj = Object.create(BRepPrimAPI_MakeCylinder.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  static FromAx2(axes: gp_Ax2, R: number, H: number): BRepPrimAPI_MakeCylinder {
+    const Module = getOCCTModule();
+    const h = Module.BRepPrimAPI_MakeCylinder.FromAx2(axes._handle, R, H);
+    return BRepPrimAPI_MakeCylinder._fromHandle(h);
+  }
+
+  Build(): void { this._handle.Build(); }
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepPrimAPI_MakeSphere wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepPrimAPI_MakeSphere {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepPrimAPI_MakeSphere {
+    const obj = Object.create(BRepPrimAPI_MakeSphere.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  static FromCenterRadius(center: gp_Pnt, R: number): BRepPrimAPI_MakeSphere {
+    const Module = getOCCTModule();
+    const h = Module.BRepPrimAPI_MakeSphere.FromCenterRadius(center._handle, R);
+    return BRepPrimAPI_MakeSphere._fromHandle(h);
+  }
+
+  Build(): void { this._handle.Build(); }
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepBuilderAPI_MakeFace wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepBuilderAPI_MakeFace {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepBuilderAPI_MakeFace {
+    const obj = Object.create(BRepBuilderAPI_MakeFace.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  static FromWire(wire: TopoDS_Wire, onlyPlane: boolean = true): BRepBuilderAPI_MakeFace {
+    const Module = getOCCTModule();
+    const h = Module.BRepBuilderAPI_MakeFace.FromWire(wire._handle, onlyPlane);
+    return BRepBuilderAPI_MakeFace._fromHandle(h);
+  }
+
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Face(): TopoDS_Face { return TopoDS_Face._fromHandle(this._handle.Face()); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepAlgoAPI_Fuse wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepAlgoAPI_Fuse {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepAlgoAPI_Fuse {
+    const obj = Object.create(BRepAlgoAPI_Fuse.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  static Create(s1: TopoDS_Shape, s2: TopoDS_Shape): BRepAlgoAPI_Fuse {
+    const Module = getOCCTModule();
+    const h = Module.BRepAlgoAPI_Fuse.Create(s1._handle, s2._handle);
+    return BRepAlgoAPI_Fuse._fromHandle(h);
+  }
+
+  Build(): void { this._handle.Build(); }
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepAlgoAPI_Cut wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepAlgoAPI_Cut {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepAlgoAPI_Cut {
+    const obj = Object.create(BRepAlgoAPI_Cut.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  static Create(s1: TopoDS_Shape, s2: TopoDS_Shape): BRepAlgoAPI_Cut {
+    const Module = getOCCTModule();
+    const h = Module.BRepAlgoAPI_Cut.Create(s1._handle, s2._handle);
+    return BRepAlgoAPI_Cut._fromHandle(h);
+  }
+
+  Build(): void { this._handle.Build(); }
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepAlgoAPI_Common wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepAlgoAPI_Common {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepAlgoAPI_Common {
+    const obj = Object.create(BRepAlgoAPI_Common.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  static Create(s1: TopoDS_Shape, s2: TopoDS_Shape): BRepAlgoAPI_Common {
+    const Module = getOCCTModule();
+    const h = Module.BRepAlgoAPI_Common.Create(s1._handle, s2._handle);
+    return BRepAlgoAPI_Common._fromHandle(h);
+  }
+
+  Build(): void { this._handle.Build(); }
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BRepOffsetAPI_MakePipe wrapper
+// ---------------------------------------------------------------------------
+
+export class BRepOffsetAPI_MakePipe {
+  /** @internal */
+  _handle: any;
+
+  static _fromHandle(h: any): BRepOffsetAPI_MakePipe {
+    const obj = Object.create(BRepOffsetAPI_MakePipe.prototype);
+    obj._handle = h;
+    return obj;
+  }
+
+  constructor(spine: TopoDS_Wire, profile: TopoDS_Shape) {
+    const Module = getOCCTModule();
+    this._handle = new Module.BRepOffsetAPI_MakePipe(spine._handle, profile._handle);
+  }
+
+  Build(): void { this._handle.Build(); }
+  IsDone(): boolean { return this._handle.IsDone(); }
+  Shape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.Shape()); }
+  FirstShape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.FirstShape()); }
+  LastShape(): TopoDS_Shape { return TopoDS_Shape._fromHandle(this._handle.LastShape()); }
+  delete(): void { this._handle.delete(); }
+}
+
+// ---------------------------------------------------------------------------
+// BSpline helpers
+// ---------------------------------------------------------------------------
+
+/** Create a BSpline curve edge from control points, knots, and multiplicities. */
+export function makeBSplineCurveEdge(
+  poles: number[],
+  knots: number[],
+  mults: number[],
+  degree: number,
+): TopoDS_Edge {
+  const Module = getOCCTModule();
+  const handle = Module.MakeBSplineCurveEdge(poles, knots, mults, degree);
+  return TopoDS_Edge._fromHandle(handle);
+}
+
+/** Create a BSpline surface face from control points, knots, and multiplicities. */
+export function makeBSplineSurfaceFace(
+  poles: number[],
+  uKnots: number[],
+  vKnots: number[],
+  uMults: number[],
+  vMults: number[],
+  uDeg: number,
+  vDeg: number,
+  nUPoles: number,
+  nVPoles: number,
+): TopoDS_Face {
+  const Module = getOCCTModule();
+  const handle = Module.MakeBSplineSurfaceFace(
+    poles, uKnots, vKnots, uMults, vMults, uDeg, vDeg, nUPoles, nVPoles,
+  );
+  return TopoDS_Face._fromHandle(handle);
+}
+
+// ---------------------------------------------------------------------------
+// Export helpers
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Curve info helpers
+// ---------------------------------------------------------------------------
+
+export interface BSplineCurveInfo {
+  isBSpline: boolean;
+  degree?: number;
+  nbPoles?: number;
+  nbKnots?: number;
+  paramFirst?: number;
+  paramLast?: number;
+  poles?: number[];
+  knots?: number[];
+  mults?: number[];
+  weights?: number[];
+  isRational?: boolean;
+  isPeriodic?: boolean;
+}
+
+/** Extract BSpline curve info (poles, knots, degree, etc.) from an edge. */
+export function getEdgeBSplineInfo(edge: TopoDS_Edge): BSplineCurveInfo {
+  const Module = getOCCTModule();
+  return Module.GetEdgeBSplineInfo(edge._handle);
+}
+
+// ---------------------------------------------------------------------------
+// Export helpers
+// ---------------------------------------------------------------------------
+
+/** Export a shape to BREP format as a string. */
+export function exportBRep(shape: TopoDS_Shape): string {
+  const Module = getOCCTModule();
+  return Module.ExportBRep(shape._handle);
+}
+
+/** Export a shape to STEP format as a string. */
+export function exportSTEP(shape: TopoDS_Shape): string {
+  const Module = getOCCTModule();
+  return Module.ExportSTEP(shape._handle);
 }

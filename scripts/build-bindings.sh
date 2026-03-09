@@ -115,7 +115,19 @@ em++ \
     -I"${OCCT_INSTALL}/include/opencascade" \
     "${CPP_FILES[@]}" \
     -L"${OCCT_INSTALL}/lib" \
+    -lTKDESTEP \
+    -lTKDEIGES \
+    -lTKXSBase \
+    -lTKDE \
+    -lTKXCAF \
+    -lTKVCAF \
+    -lTKCAF \
+    -lTKLCAF \
+    -lTKCDF \
+    -lTKV3d \
+    -lTKService \
     -lTKOffset \
+    -lTKPrim \
     -lTKBO \
     -lTKBool \
     -lTKShHealing \
@@ -133,7 +145,7 @@ em++ \
     -s EXPORT_NAME="createOCCTModule" \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s ENVIRONMENT='web,node' \
-    -s FILESYSTEM=0 \
+    -s FILESYSTEM=1 \
     -s SINGLE_FILE=0 \
     -o "${OUTPUT_DIR}/occt.js"
 
