@@ -19,9 +19,6 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(boolean_helpers) {
 
   class_<BRepAlgoAPI_Section>("BRepAlgoAPI_Section")
-    .constructor(+[]() -> BRepAlgoAPI_Section* {
-      return new BRepAlgoAPI_Section();
-    })
     .class_function("FromShapes",
       +[](const TopoDS_Shape& S1, const TopoDS_Shape& S2) -> BRepAlgoAPI_Section* {
         return new BRepAlgoAPI_Section(S1, S2, Standard_True);

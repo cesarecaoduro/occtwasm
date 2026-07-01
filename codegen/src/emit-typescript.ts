@@ -93,12 +93,15 @@ function emitConstructorImpl(
   hasSuperClass: boolean = false,
 ): string[] {
   const lines: string[] = [];
-  const superCall = hasSuperClass ? `${INDENT}${INDENT}super();\n` : '';
 
   if (constructors.length === 0) {
     // No constructors defined -- provide a default
     lines.push(`${INDENT}constructor() {`);
-    if (hasSuperClass) lines.push(`${INDENT}${INDENT}super();`);
+    if (hasSuperClass) {
+      lines.push(`${INDENT}${INDENT}super();`);
+      lines.push(`${INDENT}${INDENT}this._handle?.delete?.();`);
+    }
+    lines.push(`${INDENT}${INDENT}const Module = getOCCTModule();`);
     lines.push(`${INDENT}${INDENT}this._handle = new Module.${className}();`);
     lines.push(`${INDENT}}`);
     return lines;
@@ -108,7 +111,10 @@ function emitConstructorImpl(
     const ctor = constructors[0];
     const params = formatTsParams(ctor.args);
     lines.push(`${INDENT}constructor(${params}) {`);
-    if (hasSuperClass) lines.push(`${INDENT}${INDENT}super();`);
+    if (hasSuperClass) {
+      lines.push(`${INDENT}${INDENT}super();`);
+      lines.push(`${INDENT}${INDENT}this._handle?.delete?.();`);
+    }
     lines.push(...emitConstructorBody(className, ctor, `${INDENT}${INDENT}`));
     lines.push(`${INDENT}}`);
     return lines;
@@ -116,7 +122,10 @@ function emitConstructorImpl(
 
   // Multiple constructors: variadic implementation with runtime dispatch
   lines.push(`${INDENT}constructor(...args: any[]) {`);
-  if (hasSuperClass) lines.push(`${INDENT}${INDENT}super();`);
+  if (hasSuperClass) {
+    lines.push(`${INDENT}${INDENT}super();`);
+    lines.push(`${INDENT}${INDENT}this._handle?.delete?.();`);
+  }
 
   for (let i = 0; i < constructors.length; i++) {
     const ctor = constructors[i];
