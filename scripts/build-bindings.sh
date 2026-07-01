@@ -109,23 +109,19 @@ echo "==> Starting WASM compilation with em++..."
 echo "    Output will be written to ${OUTPUT_DIR}/"
 
 em++ \
-    -O2 \
+    -Oz \
     --bind \
     -std=c++17 \
     -I"${OCCT_INSTALL}/include/opencascade" \
     "${CPP_FILES[@]}" \
     -L"${OCCT_INSTALL}/lib" \
     -lTKDESTEP \
-    -lTKDEIGES \
     -lTKXSBase \
     -lTKDE \
     -lTKXCAF \
-    -lTKVCAF \
     -lTKCAF \
     -lTKLCAF \
     -lTKCDF \
-    -lTKV3d \
-    -lTKService \
     -lTKOffset \
     -lTKPrim \
     -lTKBO \
@@ -176,3 +172,19 @@ WASM_SIZE=$(du -h "${OUTPUT_DIR}/occt.wasm" | cut -f1)
 echo "==> Build succeeded!"
 echo "    occt.js   : ${OUTPUT_DIR}/occt.js  (${JS_SIZE})"
 echo "    occt.wasm : ${OUTPUT_DIR}/occt.wasm (${WASM_SIZE})"
+
+# ── Optional: wasm-opt post-processing ───────────────────────────────────────
+# wasm-opt (from binaryen) can further reduce size by 5-15%.
+# Emscripten bundles it; fall back gracefully if not found.
+
+WASM_OPT="$(dirname "$(command -v emcc)")/wasm-opt"
+if [[ -x "${WASM_OPT}" ]]; then
+    echo "==> Running wasm-opt -Oz ..."
+    BEFORE=$(wc -c < "${OUTPUT_DIR}/occt.wasm")
+    "${WASM_OPT}" -Oz "${OUTPUT_DIR}/occt.wasm" -o "${OUTPUT_DIR}/occt.wasm"
+    AFTER=$(wc -c < "${OUTPUT_DIR}/occt.wasm")
+    SAVED=$(( (BEFORE - AFTER) / 1024 ))
+    echo "    wasm-opt: ${BEFORE} → ${AFTER} bytes (saved ${SAVED} KB)"
+else
+    echo "    (wasm-opt not found, skipping)"
+fi
