@@ -39,6 +39,47 @@ jobs:
           node-version: 20
           registry-url: https://npm.pkg.github.com
 
+      - name: Bump package version
+        id: bump
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          RANGE="${LAST_TAG:+$LAST_TAG..}HEAD"
+          COMMITS=$(git log $RANGE --pretty=%s)
+          echo "Commits since ${LAST_TAG:-repo start}:"
+          echo "$COMMITS"
+
+          BUMP="patch"
+          if echo "$COMMITS" | grep -qiE '^[a-z]+(\([^)]*\))?!:|BREAKING CHANGE'; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -qE '^feat(\([^)]*\))?:'; then
+            BUMP="minor"
+          fi
+          echo "Detected bump type: $BUMP"
+
+          npm version "$BUMP" --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          PKG_NAME=$(node -p "require('./package.json').name")
+
+          # Guard against re-running the workflow with no new commits, or a
+          # bump type that lands on a version already on the registry.
+          while npm view "${PKG_NAME}@${NEW_VERSION}" version >/dev/null 2>&1; do
+            echo "Version ${NEW_VERSION} is already published, bumping patch..."
+            npm version patch --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+          done
+
+          echo "    Publishing version: ${NEW_VERSION}"
+          echo "version=v${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to v${NEW_VERSION} [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+
       - name: Install dependencies
         run: npm ci
 
@@ -59,15 +100,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Read package version
-        id: package-version
-        run: |
-          VERSION=$(node -p 'require("./package.json").version')
-          echo "version=v${VERSION}" >> "$GITHUB_OUTPUT"
-
       - name: Generate full changelog
         run: |
-          VERSION="${{ steps.package-version.outputs.version }}"
+          VERSION="${{ steps.bump.outputs.version }}"
           {
             echo "# ${VERSION}"
             echo
@@ -83,9 +118,9 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.package-version.outputs.version }}
-          name: ${{ steps.package-version.outputs.version }}
-          target_commitish: ${{ github.sha }}
+          tag_name: ${{ steps.bump.outputs.version }}
+          name: ${{ steps.bump.outputs.version }}
+          target_commitish: ${{ github.ref_name }}
           body_path: RELEASE_CHANGELOG.md
           files: dist.tar.gz
         env:
